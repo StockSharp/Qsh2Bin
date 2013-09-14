@@ -58,6 +58,22 @@
       <HintPath>..\..\..\References\Ecng\Ecng.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="StockSharp.Algo, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\StockSharp.Algo.dll</HintPath>
+    </Reference>
+    <Reference Include="StockSharp.BusinessEntities, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\StockSharp.BusinessEntities.dll</HintPath>
+    </Reference>
+    <Reference Include="StockSharp.Logging, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\StockSharp.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="StockSharp.Xaml, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\StockSharp.Xaml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
@@ -136,24 +152,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Algo\Algo.csproj">
-      <Project>{2a5c6fad-106c-4a4a-b602-77a6b1034ca2}</Project>
-      <Name>Algo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\BusinessEntities\BusinessEntities.csproj">
-      <Project>{dce69db8-53ca-4b7f-9368-02f175a31074}</Project>
-      <Name>BusinessEntities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Logging\Logging.csproj">
-      <Project>{C4476ADD-A3D5-41BB-9D43-55D865863B78}</Project>
-      <Name>Logging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Xaml\Xaml.csproj">
-      <Project>{64e4d6f0-36b6-4904-9ba7-fffbe5ff71d8}</Project>
-      <Name>Xaml</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
