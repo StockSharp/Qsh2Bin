@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -12,6 +12,8 @@
 using System;
 using System.IO;
 
+using QScalp.History.Internals;
+
 namespace QScalp.History.Writer
 {
   sealed class DataWriter : BinaryWriter
@@ -19,18 +21,18 @@ namespace QScalp.History.Writer
     // **********************************************************************
 
     readonly bool multistreamed;
-    DateTime baseDateTime;
+    long lastMilliseconds;
 
     // **********************************************************************
 
-    public int RecordsCount { get; private set; }
+    public int RecordCount { get; private set; }
 
     // **********************************************************************
 
-    public DataWriter(Stream output, DateTime baseDateTime, bool multistreamed)
+    public DataWriter(Stream output, DateTime recDateTime, bool multistreamed)
       : base(output)
     {
-      this.baseDateTime = baseDateTime;
+      this.lastMilliseconds = DateTimeHelper.ToMs(recDateTime);
       this.multistreamed = multistreamed;
     }
 
@@ -38,103 +40,33 @@ namespace QScalp.History.Writer
 
     public void WriteRecHeader(int sid, DateTime dateTime)
     {
-      WriteDateTime(dateTime, ref baseDateTime);
+      WriteGrowing(DateTimeHelper.ToMs(dateTime), ref lastMilliseconds);
 
       if(multistreamed)
         Write((byte)sid);
 
-      RecordsCount++;
+      RecordCount++;
     }
 
     // **********************************************************************
 
-    public void WriteDateTime(DateTime dateTime, ref DateTime baseDateTime)
-    {
-      double offset = (dateTime - baseDateTime).TotalMilliseconds;
-
-      if(offset >= ushort.MaxValue || offset < ushort.MinValue)
-      {
-        baseDateTime = dateTime;
-
-        Write(ushort.MaxValue);
-        Write(dateTime.Ticks);
-      }
-      else
-        Write((ushort)offset);
-    }
+    public void WriteLeb128(long value) { Leb128.Write(BaseStream, value); }
 
     // **********************************************************************
 
-    public void WriteRelative(int value, ref int baseValue)
+    public void WriteGrowing(long value, ref long lastValue)
     {
-      int offset = value - baseValue;
+      long offset = value - lastValue;
 
-      if(offset <= sbyte.MinValue || offset > sbyte.MaxValue)
+      if(offset >= ULeb128.Max4BValue || offset < 0)
       {
-        baseValue = value;
-
-        Write(sbyte.MinValue);
-        Write(value);
+        ULeb128.Write(BaseStream, ULeb128.Max4BValue);
+        Leb128.Write(BaseStream, offset);
       }
       else
-        Write((sbyte)offset);
-    }
+        ULeb128.Write(BaseStream, (uint)offset);
 
-    // **********************************************************************
-
-    public void WritePackInt(int value)
-    {
-      int prefix;
-
-      if(value >= 0)
-        prefix = 0;
-      else
-      {
-        prefix = 0x80;
-        value = ~value;
-      }
-
-      int bytes;
-
-      if(value < 0xff)
-        bytes = 0;
-      else if(value < 0xffff)
-        bytes = 1;
-      else if(value < 0xffffff)
-        bytes = 2;
-      else
-        bytes = 3;
-
-      int pv = value >> (bytes << 3);
-      int pvbits = 0;
-
-      int tmp = pv;
-      while(tmp > 0)
-      {
-        pvbits++;
-        tmp >>= 1;
-      }
-
-      if(bytes + pvbits > 6)
-        bytes++;
-      else
-        prefix |= pv;
-
-      switch(bytes)
-      {
-        case 1: prefix |= 0x40; break;
-        case 2: prefix |= 0x60; break;
-        case 3: prefix |= 0x70; break;
-        case 4: prefix |= 0x78; break;
-      }
-
-      Write((byte)prefix);
-
-      for(int i = 0; i < bytes; i++)
-      {
-        Write((byte)value);
-        value >>= 8;
-      }
+      lastValue = value;
     }
 
     // **********************************************************************

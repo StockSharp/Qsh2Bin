@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -23,21 +23,22 @@ namespace QScalp.History.Reader
     public static QshReader Open(string path)
     {
       FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-      BinaryReader br = DataFile.GetReader(fs);
-
-      int version = br.ReadByte();
+      Stream ds = QshFile.GetDataStream(fs);
+      int version = ds.ReadByte();
 
       switch(version)
       {
-        case 3: return new V3.QshReader3(fs, br);
-        default: throw new FormatException("Неподдерживаемая версия файла (" + version + ")");
+        case 3: return new V3.QshReaderImpl(fs, ds);
+        case 4: return new V4.QshReaderImpl(fs, ds);
+
+        default:
+          throw new FormatException("Неподдерживаемая версия файла (" + version + ")");
       }
     }
 
     // **********************************************************************
 
     readonly FileStream fs;
-    protected BinaryReader br;
 
     // **********************************************************************
 
@@ -48,7 +49,7 @@ namespace QScalp.History.Reader
     public string Comment { get; protected set; }
     public DateTime RecDateTime { get; protected set; }
 
-    public abstract int StreamsCount { get; }
+    public abstract int StreamCount { get; }
     public abstract IQshStream this[int i] { get; }
 
     public DateTime CurrentDateTime { get; protected set; }
@@ -56,19 +57,15 @@ namespace QScalp.History.Reader
 
     // **********************************************************************
 
-    protected QshReader(FileStream fs, BinaryReader br)
+    protected QshReader(FileStream fs)
     {
       this.fs = fs;
-      this.br = br;
     }
 
     // **********************************************************************
 
-    public void Dispose()
+    public virtual void Dispose()
     {
-      if(br != null)
-        br.Dispose();
-
       if(fs != null)
         fs.Dispose();
     }

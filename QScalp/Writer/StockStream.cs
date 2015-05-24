@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -18,12 +18,10 @@ namespace QScalp.History.Writer
   {
     // **********************************************************************
 
-    const int DiffListBaseSize = 100;
-
     Quote[] lastQuotes = new Quote[0];
-    readonly List<Quote> diffQuotes = new List<Quote>(DiffListBaseSize);
+    readonly List<Quote> diffQuotes = new List<Quote>(100);
 
-    int basePrice;
+    int lastPrice;
 
     readonly DataWriter dw;
     readonly int sid;
@@ -94,26 +92,27 @@ namespace QScalp.History.Writer
       if(diffQuotes.Count > 0)
       {
         dw.WriteRecHeader(sid, dateTime);
-        dw.WritePackInt(diffQuotes.Count);
+        dw.WriteLeb128(diffQuotes.Count);
 
         foreach(Quote q in diffQuotes)
         {
-          dw.WriteRelative(q.Price, ref basePrice);
+          dw.WriteLeb128(q.Price - lastPrice);
+          lastPrice = q.Price;
 
           switch(q.Type)
           {
             case QuoteType.Ask:
             case QuoteType.BestAsk:
-              dw.WritePackInt(q.Volume);
+              dw.WriteLeb128(q.Volume);
               break;
 
             case QuoteType.Bid:
             case QuoteType.BestBid:
-              dw.WritePackInt(-q.Volume);
+              dw.WriteLeb128(-q.Volume);
               break;
 
             default:
-              dw.WritePackInt(0);
+              dw.WriteLeb128(0);
               break;
           }
         }

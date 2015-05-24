@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -18,13 +18,11 @@ namespace QScalp
   {
     // **********************************************************************
 
-    const int StepRoundDigits = 14;
+    const int stepRoundDigits = 14;
 
     static readonly char[] sep = new char[] { ':' };
 
     string entry;
-
-    string auxcode;
     double step, inverseStep;
 
     NumberFormatInfo priceFormat;
@@ -33,20 +31,7 @@ namespace QScalp
 
     public string CName { get; private set; }
     public string Ticker { get; private set; }
-
-    public string AuxCode
-    {
-      get { return auxcode; }
-
-      private set
-      {
-        if(value == null || value.Length == 0)
-          auxcode = null;
-        else
-          auxcode = value;
-      }
-    }
-
+    public string AuxCode { get; private set; }
     public int Id { get; private set; }
 
     public double Step
@@ -56,7 +41,7 @@ namespace QScalp
       private set
       {
         if(value > 0)
-          step = Math.Round(value, StepRoundDigits);
+          step = Math.Round(value, stepRoundDigits);
         else
           step = 1;
 
@@ -65,9 +50,9 @@ namespace QScalp
         double d = step;
         int precision = 0;
 
-        while(d != (int)(d) && precision <= StepRoundDigits)
+        while(d != (int)(d) && precision <= stepRoundDigits)
         {
-          d = Math.Round(d * 10, StepRoundDigits);
+          d = Math.Round(d * 10, stepRoundDigits);
           precision++;
         }
 
@@ -86,16 +71,14 @@ namespace QScalp
 
       set
       {
-        if(value == null)
-          entry = string.Empty;
-        else
-          entry = value;
-
-        if(entry.Length == 0)
+        if(string.IsNullOrEmpty(value))
         {
+          entry = string.Empty;
           Reset(string.Empty);
           return;
         }
+        else
+          entry = value;
 
         string[] s = entry.Split(sep);
 
@@ -107,13 +90,16 @@ namespace QScalp
 
           int id = 0;
 
-          bool error = s[3].Length > 0 && !int.TryParse(s[3], NumberStyles.Integer,
-            NumberFormatInfo.InvariantInfo, out id);
+          bool error = s[3].Length > 0 && !int.TryParse(s[3],
+            NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out id);
 
           Id = id;
 
-          if(double.TryParse(s[4], NumberStyles.Float, NumberFormatInfo.InvariantInfo, out step))
+          if(double.TryParse(s[4], NumberStyles.Float,
+            NumberFormatInfo.InvariantInfo, out step))
+          {
             Step = step;
+          }
           else
           {
             Step = 1;
@@ -121,7 +107,12 @@ namespace QScalp
           }
 
           if(error)
+          {
             Ticker = "{" + Ticker + "}";
+            Key = 0;
+          }
+          else
+            InitKey();
         }
         else
           Reset("{err}");
@@ -141,10 +132,44 @@ namespace QScalp
     void Reset(string state)
     {
       CName = Ticker = state;
-      AuxCode = null;
+      AuxCode = string.Empty;
       Id = 0;
       Step = 1;
       Key = 0;
+    }
+
+    // **********************************************************************
+
+    void InitKey()
+    {
+      if(Id != 0)
+        Key = GetKey(GetKey(CName), Id);
+      else if(AuxCode.Length == 0)
+        Key = GetKey(GetKey(CName), Ticker);
+      else
+        Key = GetKey(GetKey(CName), Ticker, AuxCode);
+    }
+
+    // **********************************************************************
+
+    public static int GetKey(string cname)
+    {
+      return cname.GetHashCode();
+    }
+
+    public static int GetKey(int ckey, int id)
+    {
+      return ckey ^ id;
+    }
+
+    public static int GetKey(int ckey, string ticker)
+    {
+      return ckey ^ ticker.GetHashCode();
+    }
+
+    public static int GetKey(int ckey, string ticker, string auxcode)
+    {
+      return ckey ^ ticker.GetHashCode() ^ ~auxcode.GetHashCode();
     }
 
     // **********************************************************************
@@ -155,9 +180,9 @@ namespace QScalp
         return string.Empty;
 
       return CName + " / " + Ticker
-        + (AuxCode == null ? string.Empty : " " + AuxCode)
+        + (AuxCode.Length == 0 ? string.Empty : " " + AuxCode)
         + (Id == 0 ? string.Empty : " " + Id)
-        + ", " + GetString(1) + " пт";
+        + ", " + GetString(1, "N") + " пт";
     }
 
     // **********************************************************************
@@ -173,7 +198,7 @@ namespace QScalp
 
     // **********************************************************************
 
-    public string GetString(double ticks, string fmt = "N")
+    public string GetString(double ticks, string fmt)
     {
       return GetPrice(ticks).ToString(fmt, priceFormat);
     }

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -12,39 +12,45 @@
 using System;
 using System.IO;
 
+using QScalp.History.Internals;
+
 namespace QScalp.History.Reader.V3
 {
-  static class DataReader
+  sealed class DataReader : BinaryReader
   {
     // **********************************************************************
 
-    public static DateTime ReadDateTime(BinaryReader br, ref DateTime baseDateTime)
+    public DataReader(Stream stream) : base(stream) { }
+
+    // **********************************************************************
+
+    public DateTime ReadDateTime(ref DateTime baseDateTime)
     {
-      int offset = br.ReadUInt16();
+      int offset = ReadUInt16();
 
       if(offset == ushort.MaxValue)
-        return baseDateTime = new DateTime(br.ReadInt64());
+        return baseDateTime = new DateTime(ReadInt64());
       else
         return baseDateTime.AddMilliseconds(offset);
     }
 
     // **********************************************************************
 
-    public static int ReadRelative(BinaryReader br, ref int baseValue)
+    public int ReadRelative(ref int baseValue)
     {
-      int offset = br.ReadSByte();
+      int offset = ReadSByte();
 
       if(offset == sbyte.MinValue)
-        return baseValue = br.ReadInt32();
+        return baseValue = ReadInt32();
       else
         return baseValue + offset;
     }
 
     // **********************************************************************
 
-    public static int ReadPackInt(BinaryReader br)
+    public int ReadPackInt()
     {
-      int prefix = br.ReadByte();
+      int prefix = ReadByte();
       int bytes, value;
 
       if((prefix & 0x78) == 0x78)
@@ -74,12 +80,24 @@ namespace QScalp.History.Reader.V3
       }
 
       for(int i = 0; i < bytes; i++)
-        value |= br.ReadByte() << (i << 3);
+        value |= ReadByte() << (i << 3);
 
       if((prefix & 0x80) == 0x80)
         value = ~value;
 
       return value;
+    }
+
+    // **********************************************************************
+
+    public long ReadRelative(ref long lastValue)
+    {
+      int offset = ReadSByte();
+
+      if(offset == sbyte.MinValue)
+        return lastValue = Leb128.Read(BaseStream);
+      else
+        return lastValue += offset;
     }
 
     // **********************************************************************

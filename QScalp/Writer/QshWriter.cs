@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -20,35 +20,36 @@ namespace QScalp.History.Writer
   {
     // **********************************************************************
 
-    const byte FileVersion = 3;
+    const byte fileVersion = 4;
 
-    readonly FileStream fs;
+    readonly Stream fs;
     readonly DataWriter dw;
 
-    int streamsCount;
+    int streamCount;
 
     // **********************************************************************
 
-    public int RecordsCount { get { return dw.RecordsCount; } }
+    public int RecordCount { get { return dw.RecordCount; } }
     public long FileSize { get { return fs.Length; } }
 
     // **********************************************************************
 
-    public QshWriter(string path, string appName, string comment,
-      DateTime recDateTime, int streamsCount)
+    public QshWriter(string path, bool compress, string appName,
+      string comment, DateTime recDateTime, int streamCount)
     {
-      if(streamsCount > byte.MaxValue)
+      if(streamCount < 0)
+        throw new ArgumentOutOfRangeException("streamCount");
+
+      if(streamCount > byte.MaxValue)
         throw new OverflowException("Слишком много потоков для записи");
 
-      fs = new FileStream(path, FileMode.Create, FileAccess.Write);
-      dw = new DataWriter(fs, recDateTime, streamsCount > 1);
-
-      DataFile.WritePrefix(dw, FileVersion);
+      fs = QshFile.Create(path, compress, fileVersion);
+      dw = new DataWriter(fs, recDateTime, streamCount > 1);
 
       dw.Write(appName);
       dw.Write(comment);
       dw.Write(recDateTime.Ticks);
-      dw.Write((byte)streamsCount);
+      dw.Write((byte)streamCount);
     }
 
     // **********************************************************************
@@ -66,32 +67,37 @@ namespace QScalp.History.Writer
 
     public StockStream CreateStockStream(Security s)
     {
-      return new StockStream(dw, streamsCount++, s);
+      return new StockStream(dw, streamCount++, s);
     }
 
     public DealsStream CreateDealsStream(Security s)
     {
-      return new DealsStream(dw, streamsCount++, s);
+      return new DealsStream(dw, streamCount++, s);
     }
 
     public OrdersStream CreateOrdersStream(Security s)
     {
-      return new OrdersStream(dw, streamsCount++, s);
+      return new OrdersStream(dw, streamCount++, s);
     }
 
     public TradesStream CreateTradesStream(Security s)
     {
-      return new TradesStream(dw, streamsCount++, s);
+      return new TradesStream(dw, streamCount++, s);
     }
 
     public MessagesStream CreateMessagesStream()
     {
-      return new MessagesStream(dw, streamsCount++);
+      return new MessagesStream(dw, streamCount++);
     }
 
     public AuxInfoStream CreateAuxInfoStream(Security s)
     {
-      return new AuxInfoStream(dw, streamsCount++, s);
+      return new AuxInfoStream(dw, streamCount++, s);
+    }
+
+    public OrdLogStream CreateOrdLogStream(Security s)
+    {
+      return new OrdLogStream(dw, streamCount++, s);
     }
 
     // **********************************************************************

@@ -2,25 +2,30 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Data.OleDb;
 	using System.IO;
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows;
+	using System.Windows.Interop;
 
 	using Ecng.Common;
 	using Ecng.Collections;
 	using Ecng.Xaml;
 
+	using MoreLinq;
+
 	using QScalp;
+	using QScalp.History;
 	using QScalp.History.Reader;
 
 	using StockSharp.Algo;
 	using StockSharp.Algo.Storages;
 	using StockSharp.BusinessEntities;
 	using StockSharp.Logging;
+	using StockSharp.Messages;
 	using StockSharp.Xaml;
 
-	using Quote = StockSharp.BusinessEntities.Quote;
 	using Security = StockSharp.BusinessEntities.Security;
 
 	public partial class MainWindow
@@ -88,16 +93,18 @@
 
 			const int maxBufCount = 1000;
 
-			var data = new Dictionary<Security, Tuple<List<MarketDepth>, List<Trade>, List<SecurityChange>>>();
+			var data = new Dictionary<Security, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
 
 			using (var qr = QshReader.Open(fileName))
 			{
-				for (var i = 0; i < qr.StreamsCount; i++)
+				for (var i = 0; i < qr.StreamCount; i++)
 				{
 					dynamic stream = qr[i];
 					Security security = GetSecurity(stream.Security, board);
+					var priceStep = security.PriceStep ?? 1;
+					var securityId = security.ToSecurityId();
 
-					var secData = data.SafeAdd(security, key => Tuple.Create(new List<MarketDepth>(), new List<Trade>(), new List<SecurityChange>()));
+					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
 					switch ((StreamType)stream.Type)
 					{
@@ -105,9 +112,9 @@
 						{
 							((IStockStream)stream).Handler += (key, quotes, spread) =>
 							{
-								var md = new MarketDepth(security).Update(quotes.Select(q =>
+								var quotes2 = quotes.Select(q =>
 								{
-									OrderDirections dir;
+									Sides side;
 
 									switch (q.Type)
 									{
@@ -117,31 +124,39 @@
 											throw new ArgumentException(q.Type.ToString());
 										case QuoteType.Ask:
 										case QuoteType.BestAsk:
-											dir = OrderDirections.Sell;
+											side = Sides.Sell;
 											break;
 										case QuoteType.Bid:
 										case QuoteType.BestBid:
-											dir = OrderDirections.Buy;
+											side = Sides.Buy;
 											break;
 										default:
 											throw new ArgumentOutOfRangeException();
 									}
 
-									return new Quote(security, security.MinStepSize * q.Price, q.Volume, dir);
-								}), qr.CurrentDateTime);
+									return new QuoteChange(side, priceStep * q.Price, q.Volume);
+								}).ToArray();
 
-								if (md.Verify())
+								var md = new QuoteChangeMessage
 								{
-									secData.Item1.Add(md);
+									SecurityId = securityId,
+									ServerTime = qr.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									Bids = quotes2.Where(q => q.Side == Sides.Buy),
+									Asks = quotes2.Where(q => q.Side == Sides.Sell),
+								};
 
-									if (secData.Item1.Count > maxBufCount)
-									{
-										registry.GetMarketDepthStorage(security).Save(secData.Item1);
-										secData.Item1.Clear();
-									}
+								//if (md.Verify())
+								//{
+								secData.Item1.Add(md);
+
+								if (secData.Item1.Count > maxBufCount)
+								{
+									registry.GetQuoteMessageStorage(security).Save(secData.Item1);
+									secData.Item1.Clear();
 								}
-								else
-									_logManager.Application.AddErrorLog("Стакан для {0} в момент {1} не прошел валидацию. Лучший бид {2}, Лучший офер {3}.", security, qr.CurrentDateTime, md.BestBid, md.BestAsk);
+								//}
+								//else
+								//	_logManager.Application.AddErrorLog("Стакан для {0} в момент {1} не прошел валидацию. Лучший бид {2}, Лучший офер {3}.", security, qr.CurrentDateTime, md.BestBid, md.BestAsk);
 							};
 							break;
 						}
@@ -149,57 +164,125 @@
 						{
 							((IDealsStream)stream).Handler += deal =>
 							{
-								secData.Item2.Add(new Trade
+								secData.Item2.Add(new ExecutionMessage
 								{
-									Security = security,
-									Time = deal.DateTime,
+									ExecutionType = ExecutionTypes.Tick,
+									SecurityId = securityId,
+									OpenInterest = deal.OI,
+									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 									Volume = deal.Volume,
-									Price = (decimal)deal.Price,
-									OrderDirection =
+									TradeId = deal.Id,
+									TradePrice = (decimal)deal.Price,
+									OriginSide = 
 										deal.Type == DealType.Buy
-											? OrderDirections.Buy
-											: (deal.Type == DealType.Sell ? OrderDirections.Sell : (OrderDirections?)null)
+											? Sides.Buy
+											: (deal.Type == DealType.Sell ? Sides.Sell : (Sides?)null)
 								});
 
 								if (secData.Item2.Count > maxBufCount)
 								{
-									registry.GetTradeStorage(security).Save(secData.Item2);
+									registry.GetTickMessageStorage(security).Save(secData.Item2);
 									secData.Item2.Clear();
+								}
+							};
+							break;
+						}
+						case StreamType.OrdLog:
+						{
+							((IOrdLogStream)stream).Handler += (key, ol) =>
+							{
+								var msg = new ExecutionMessage
+								{
+									ExecutionType = ExecutionTypes.OrderLog,
+									SecurityId = securityId,
+									OpenInterest = ol.OI,
+									OrderId = ol.OrderId,
+									Price = priceStep * ol.Price,
+									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
+									Volume = ol.Amount,
+									Balance = ol.AmountRest,
+									TradeId = ol.DealId,
+									TradePrice = priceStep * ol.DealPrice,
+								};
+
+								if (ol.Flags.Contains(OrdLogFlags.Add))
+								{
+									msg.OrderState = OrderStates.Active;
+								}
+								else if (ol.Flags.Contains(OrdLogFlags.Fill))
+								{
+									msg.OrderState = OrderStates.Done;
+								}
+								else if (ol.Flags.Contains(OrdLogFlags.Canceled))
+								{
+									msg.OrderState = OrderStates.Done;
+								}
+								else if (ol.Flags.Contains(OrdLogFlags.CanceledGroup))
+								{
+									msg.OrderState = OrderStates.Done;
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.Buy))
+								{
+									msg.OriginSide = Sides.Buy;
+								}
+								else if (ol.Flags.Contains(OrdLogFlags.Sell))
+								{
+									msg.OriginSide = Sides.Sell;
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.FillOrKill))
+								{
+									msg.TimeInForce = TimeInForce.MatchOrCancel;
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.Quote))
+								{
+									msg.TimeInForce = TimeInForce.PutInQueue;
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.Counter))
+								{
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.CrossTrade))
+								{
+								}
+
+								if (ol.Flags.Contains(OrdLogFlags.NonSystem))
+								{
+									msg.IsSystem = false;
+								}
+
+								secData.Item4.Add(msg);
+
+								if (secData.Item4.Count > maxBufCount)
+								{
+									registry.GetOrderLogMessageStorage(security).Save(secData.Item4);
+									secData.Item4.Clear();
 								}
 							};
 							break;
 						}
 						case StreamType.AuxInfo:
 						{
-							var prevOI = new SecurityChange(security, DateTime.MinValue, SecurityChangeTypes.OpenInterest, 0m);
-							var prevBidSum = new SecurityChange(security, DateTime.MinValue, SecurityChangeTypes.BidsVolume, 0m);
-							var prevAskSum = new SecurityChange(security, DateTime.MinValue, SecurityChangeTypes.AsksVolume, 0m);
-
-							((IAuxInfoStream)stream).Handler += info =>
+							((IAuxInfoStream)stream).Handler += (key, info) =>
 							{
-								var currOI = new SecurityChange(security, info.DateTime, SecurityChangeTypes.OpenInterest, (decimal)info.OI);
-								var currBidSum = new SecurityChange(security, info.DateTime, SecurityChangeTypes.BidsVolume, (decimal)info.BidSum);
-								var currAskSum = new SecurityChange(security, info.DateTime, SecurityChangeTypes.AsksVolume, (decimal)info.AskSum);
-
-								if (!currOI.Value.Equals(prevOI.Value))
+								secData.Item3.Add(new Level1ChangeMessage
 								{
-									secData.Item3.Add(currOI);
-									prevOI = currOI;
+									SecurityId = securityId,
+									ServerTime = info.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 								}
-								else if (!currBidSum.Value.Equals(prevBidSum.Value))
-								{
-									secData.Item3.Add(currBidSum);
-									prevBidSum = currBidSum;
-								}
-								else if (!currAskSum.Value.Equals(prevAskSum.Value))
-								{
-									secData.Item3.Add(currAskSum);
-									prevAskSum = currAskSum;
-								}
+								.TryAdd(Level1Fields.LastTradePrice, priceStep * info.Price)
+								.TryAdd(Level1Fields.BidsVolume, (decimal)info.BidTotal)
+								.TryAdd(Level1Fields.AsksVolume, (decimal)info.AskTotal)
+								.TryAdd(Level1Fields.HighPrice, priceStep * info.HiLimit)
+								.TryAdd(Level1Fields.LowPrice, priceStep * info.LoLimit)
+								.TryAdd(Level1Fields.OpenInterest, (decimal)info.OI));
 
 								if (secData.Item3.Count > maxBufCount)
 								{
-									registry.GetSecurityChangeStorage(security).Save(secData.Item3);
+									registry.GetLevel1MessageStorage(security).Save(secData.Item3);
 									secData.Item3.Clear();
 								}
 							};
@@ -217,7 +300,7 @@
 					}
 				}
 
-				while(qr.CurrentDateTime != DateTime.MaxValue)
+				while (qr.CurrentDateTime != DateTime.MaxValue)
 					qr.Read(true);
 			}
 
@@ -225,17 +308,22 @@
 			{
 				if (pair.Value.Item1.Any())
 				{
-					registry.GetMarketDepthStorage(pair.Key).Save(pair.Value.Item1);
+					registry.GetQuoteMessageStorage(pair.Key).Save(pair.Value.Item1);
 				}
 
 				if (pair.Value.Item2.Any())
 				{
-					registry.GetTradeStorage(pair.Key).Save(pair.Value.Item2);
+					registry.GetTickMessageStorage(pair.Key).Save(pair.Value.Item2);
 				}
 
 				if (pair.Value.Item3.Any())
 				{
-					registry.GetSecurityChangeStorage(pair.Key).Save(pair.Value.Item3);
+					registry.GetLevel1MessageStorage(pair.Key).Save(pair.Value.Item3);
+				}
+
+				if (pair.Value.Item4.Any())
+				{
+					registry.GetOrderLogMessageStorage(pair.Key).Save(pair.Value.Item4);
 				}
 			}
 		}
@@ -246,8 +334,8 @@
 			{
 				Id = _idGenerator.GenerateId(security.Ticker, board),
 				Code = security.Ticker,
-				ExchangeBoard = board,
-				MinStepSize = (decimal)security.Step,
+				Board = board,
+				PriceStep = (decimal)security.Step,
 			};
 		}
 

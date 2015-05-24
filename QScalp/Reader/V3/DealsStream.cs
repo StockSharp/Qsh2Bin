@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,13 +10,10 @@
 #endregion
 
 using System;
-using System.IO;
-
-using QScalp.History.Internals;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class DealsStream : QshStream3, IDealsStream
+  sealed class DealsStream : QshStream, IDealsStream
   {
     // **********************************************************************
 
@@ -28,6 +25,11 @@ namespace QScalp.History.Reader.V3
 
     int lastVolume;
 
+    int baseOI;
+    int lastOI;
+
+    long lastId;
+
     // **********************************************************************
 
     public Security Security { get; private set; }
@@ -35,10 +37,10 @@ namespace QScalp.History.Reader.V3
 
     // **********************************************************************
 
-    public DealsStream(BinaryReader br)
-      : base(StreamType.Deals, br)
+    public DealsStream(DataReader dr)
+      : base(StreamType.Deals, dr)
     {
-      Security = new Security(br.ReadString());
+      Security = new Security(dr.ReadString());
     }
 
     // **********************************************************************
@@ -47,24 +49,32 @@ namespace QScalp.History.Reader.V3
     {
       Deal d = new Deal();
 
-      DealFlags flags = (DealFlags)br.ReadByte();
+      DealFlagsV3 flags = (DealFlagsV3)dr.ReadByte();
 
-      if((flags & DealFlags.DateTime) > 0)
-        d.DateTime = lastDateTime = DataReader.ReadDateTime(br, ref baseDateTime);
+      if((flags & DealFlagsV3.DateTime) != 0)
+        d.DateTime = lastDateTime = dr.ReadDateTime(ref baseDateTime);
       else
         d.DateTime = lastDateTime;
 
-      if((flags & DealFlags.Price) > 0)
-        d.Price = lastPrice = Security.GetPrice(DataReader.ReadRelative(br, ref basePrice));
+      if((flags & DealFlagsV3.Price) != 0)
+        d.Price = lastPrice = Security.GetPrice(dr.ReadRelative(ref basePrice));
       else
         d.Price = lastPrice;
 
-      if((flags & DealFlags.Volume) > 0)
-        d.Volume = lastVolume = DataReader.ReadPackInt(br);
+      if((flags & DealFlagsV3.Volume) != 0)
+        d.Volume = lastVolume = dr.ReadPackInt();
       else
         d.Volume = lastVolume;
 
-      d.Type = (DealType)(flags & DealFlags.Type);
+      if((flags & DealFlagsV3.OI) != 0)
+        d.OI = lastOI = dr.ReadRelative(ref baseOI);
+      else
+        d.OI = lastOI;
+
+      if((flags & DealFlagsV3.Id) != 0)
+        d.Id = dr.ReadRelative(ref lastId);
+
+      d.Type = (DealType)(flags & DealFlagsV3.Type);
 
       if(push && Handler != null)
       {

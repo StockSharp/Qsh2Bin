@@ -101,11 +101,11 @@
             Логгер стратегии, записывающий данные в отладочное окно.
             </summary>
         </member>
-        <member name="M:StockSharp.Logging.DebugLogListener.OnWriteMessage(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Logging.DebugLogListener.OnWriteMessages(System.Collections.Generic.IEnumerable{StockSharp.Logging.LogMessage})">
             <summary>
-            Записать сообщение.
+            Записать сообщения.
             </summary>
-            <param name="message">Отладочное сообщение.</param>
+            <param name="messages">Отладочные сообщения.</param>
         </member>
         <member name="T:StockSharp.Logging.EmailLogListener">
             <summary>
@@ -123,18 +123,24 @@
             </summary>
             <returns>Email клиент.</returns>
         </member>
-        <member name="M:StockSharp.Logging.EmailLogListener.CreateMail(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Logging.EmailLogListener.GetSubject(StockSharp.Logging.LogMessage)">
             <summary>
-            Создать email сообщение по полученным данным.
+            Создать заголовок.
             </summary>
             <param name="message">Отладочное сообщение.</param>
-            <returns>Email сообщение.</returns>
+            <returns>Заголовок.</returns>
         </member>
-        <member name="M:StockSharp.Logging.EmailLogListener.OnWriteMessages(System.Collections.Generic.IEnumerable{StockSharp.Logging.LogMessage})">
+        <member name="M:StockSharp.Logging.EmailLogListener.EnqueueMessage(StockSharp.Logging.LogMessage)">
             <summary>
-            Записать сообщения.
+            Добавить сообщение в очередь на отправку.
             </summary>
-            <param name="messages">Отладочные сообщения.</param>
+            <param name="message">Сообщение.</param>
+        </member>
+        <member name="M:StockSharp.Logging.EmailLogListener.OnWriteMessage(StockSharp.Logging.LogMessage)">
+            <summary>
+            Записать сообщение.
+            </summary>
+            <param name="message">Отладочное сообщение.</param>
         </member>
         <member name="M:StockSharp.Logging.EmailLogListener.Load(Ecng.Serialization.SettingsStorage)">
             <summary>
@@ -219,7 +225,7 @@
             <summary>
             Создать <see cref="T:StockSharp.Logging.FileLogListener"/>. Все сообщения из <see cref="E:StockSharp.Logging.ILogSource.Log"/> будут записывать в файл <paramref name="fileName"/>.
             </summary>
-            <param name="fileName">Название текстового файла, в которое будут писаться сообщения из события <see cref="E:StockSharp.Logging.ILogSource.Log"/>.</param>
+            <param name="fileName">Название текстового файла, в который будут писаться сообщения из события <see cref="E:StockSharp.Logging.ILogSource.Log"/>.</param>
         </member>
         <member name="M:StockSharp.Logging.FileLogListener.OnCreateWriter(System.String)">
             <summary>
@@ -246,9 +252,9 @@
             </summary>
             <param name="storage">Хранилище настроек.</param>
         </member>
-        <member name="M:StockSharp.Logging.FileLogListener.DisposeManaged">
+        <member name="P:StockSharp.Logging.FileLogListener.FileName">
             <summary>
-            Освободить ресурсы и закрыть лог-файл.
+            Название текстового файла (без расширения), в который будут писаться сообщения из события <see cref="E:StockSharp.Logging.ILogSource.Log"/>.
             </summary>
         </member>
         <member name="P:StockSharp.Logging.FileLogListener.Encoding">
@@ -268,7 +274,7 @@
         </member>
         <member name="P:StockSharp.Logging.FileLogListener.Append">
             <summary>
-            Добавлять ли в файл данные, если он уже существует.
+            Добавлять ли в файл данные, если он уже существует. По-умолчанию выключено.
             </summary>
         </member>
         <member name="P:StockSharp.Logging.FileLogListener.LogDirectory">
@@ -339,9 +345,9 @@
             Текущее время, которое будет передано в <see cref="P:StockSharp.Logging.LogMessage.Time"/>.
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.ILogSource.Childs">
+        <member name="P:StockSharp.Logging.ILogSource.IsRoot">
             <summary>
-            Дочерние источники логов.
+            Является ли источник корнем (даже при <see cref="P:StockSharp.Logging.ILogSource.Parent"/> не равным <see langword="null"/>).
             </summary>
         </member>
         <member name="E:StockSharp.Logging.ILogSource.Log">
@@ -355,92 +361,83 @@
             </summary>
             <param name="message">Отладочное сообщение.</param>
         </member>
-        <member name="T:StockSharp.Logging.BaseLogReceiver`1">
+        <member name="T:StockSharp.Logging.BaseLogReceiver">
             <summary>
             Базовая реализация <see cref="T:StockSharp.Logging.ILogReceiver"/>.
             </summary>
-            <typeparam name="TParent">Тип родителя <see cref="P:StockSharp.Logging.ILogSource.Parent"/>.</typeparam>
         </member>
-        <member name="T:StockSharp.Logging.BaseLogSource`1">
+        <member name="T:StockSharp.Logging.BaseLogSource">
             <summary>
             Базовая реализация <see cref="T:StockSharp.Logging.ILogSource"/>.
             </summary>
-            <typeparam name="TParent">Тип родителя <see cref="P:StockSharp.Logging.ILogSource.Parent"/>.</typeparam>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.#ctor">
+        <member name="M:StockSharp.Logging.BaseLogSource.#ctor">
             <summary>
-            Инициализировать <see cref="T:StockSharp.Logging.BaseLogSource`1"/>.
+            Инициализировать <see cref="T:StockSharp.Logging.BaseLogSource"/>.
             </summary>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.SetChilds``1(Ecng.Collections.INotifyList{``0})">
-            <summary>
-            Установить коллекцию дочерних элементов, которые будут транслироваться в <see cref="P:StockSharp.Logging.ILogSource.Childs"/>.
-            </summary>
-            <typeparam name="TChild">Тип дочернего элемента.</typeparam>
-            <param name="childs">Коллекция дочерних элементов.</param>
-        </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.RaiseLog(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Logging.BaseLogSource.RaiseLog(StockSharp.Logging.LogMessage)">
             <summary>
             Вызвать событие <see cref="E:StockSharp.Logging.ILogSource.Log"/>.
             </summary>
             <param name="message">Отладочное сообщение.</param>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.ToString">
+        <member name="M:StockSharp.Logging.BaseLogSource.ToString">
             <summary>
             Получить строковое представление источника.
             </summary>
             <returns>Строковое представление источника.</returns>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.DisposeManaged">
-            <summary>
-            Освободить занятые ресурсы.
-            </summary>
-        </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.Load(Ecng.Serialization.SettingsStorage)">
+        <member name="M:StockSharp.Logging.BaseLogSource.Load(Ecng.Serialization.SettingsStorage)">
             <summary>
             Загрузить настройки.
             </summary>
             <param name="storage">Хранилище настроек.</param>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogSource`1.Save(Ecng.Serialization.SettingsStorage)">
+        <member name="M:StockSharp.Logging.BaseLogSource.Save(Ecng.Serialization.SettingsStorage)">
             <summary>
             Сохранить настройки.
             </summary>
             <param name="storage">Хранилище настроек.</param>
         </member>
-        <member name="P:StockSharp.Logging.BaseLogSource`1.Id">
+        <member name="P:StockSharp.Logging.BaseLogSource.Id">
             <summary>
             Уникальный идентификатор источника.
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.BaseLogSource`1.Name">
+        <member name="P:StockSharp.Logging.BaseLogSource.Name">
             <summary>
-            Название.
+            Название источника (для различия в лог файлах).
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.BaseLogSource`1.Parent">
+        <member name="P:StockSharp.Logging.BaseLogSource.Parent">
             <summary>
             Родитель.
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.BaseLogSource`1.LogLevel">
+        <member name="P:StockSharp.Logging.BaseLogSource.LogLevel">
             <summary>
             Уровень логирования. По-умолчанию установлено в <see cref="F:StockSharp.Logging.LogLevels.Inherit"/>.
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.BaseLogSource`1.CurrentTime">
+        <member name="P:StockSharp.Logging.BaseLogSource.CurrentTime">
             <summary>
             Текущее время, которое будет передано в <see cref="P:StockSharp.Logging.LogMessage.Time"/>.
             </summary>
         </member>
-        <member name="E:StockSharp.Logging.BaseLogSource`1.Log">
+        <member name="P:StockSharp.Logging.BaseLogSource.IsRoot">
+            <summary>
+            Является ли источник корнем (даже при <see cref="P:StockSharp.Logging.ILogSource.Parent"/> не равным <see langword="null"/>).
+            </summary>
+        </member>
+        <member name="E:StockSharp.Logging.BaseLogSource.Log">
             <summary>
             Событие нового отладочного сообщения.
             </summary>
         </member>
-        <member name="M:StockSharp.Logging.BaseLogReceiver`1.#ctor">
+        <member name="M:StockSharp.Logging.BaseLogReceiver.#ctor">
             <summary>
-            Инициализировать <see cref="T:StockSharp.Logging.BaseLogReceiver`1"/>.
+            Инициализировать <see cref="T:StockSharp.Logging.BaseLogReceiver"/>.
             </summary>
         </member>
         <member name="T:StockSharp.Logging.Log4NetLogger">
@@ -514,12 +511,6 @@
             <summary>
             Вспомогательный класс для работы с <see cref="T:StockSharp.Logging.ILogSource"/>. 
             </summary>
-        </member>
-        <member name="M:StockSharp.Logging.LoggingHelper.SyncMarketTime(System.Int32)">
-            <summary>
-            Синхронизировать <see cref="P:StockSharp.Logging.LoggingHelper.NowOffset"/> между локальным временем на компьютере и NTP сервером в интернете.
-            </summary>
-            <param name="timeout">Таймаут синхронизации в милисекундах.</param>
         </member>
         <member name="M:StockSharp.Logging.LoggingHelper.AddInfoLog(StockSharp.Logging.ILogReceiver,System.Func{System.String})">
             <summary>
@@ -612,21 +603,13 @@
             <param name="error">Ошибка.</param>
             <param name="message">Текстовое сообщение.</param>
         </member>
-        <member name="P:StockSharp.Logging.LoggingHelper.Now">
+        <member name="M:StockSharp.Logging.LoggingHelper.GetLogLevel(StockSharp.Logging.ILogSource)">
             <summary>
-            Текущее время.
+            Получить <see cref="P:StockSharp.Logging.ILogSource.LogLevel"/> для источника.
+            Если значение равно <see cref="F:StockSharp.Logging.LogLevels.Inherit"/>, то берется уровень родительского источника.
             </summary>
-        </member>
-        <member name="P:StockSharp.Logging.LoggingHelper.NowOffset">
-            <summary>
-            Временное смещение. Неоходимо устанавливать, когда торговая программа работает с неточными настройками локального времени.
-            Значение <see cref="P:StockSharp.Logging.LoggingHelper.Now"/> будет корректироваться в зависимости от установленного значения.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Logging.LoggingHelper.TimeZoneOffset">
-            <summary>
-            Смещение временной зоны.
-            </summary>
+            <param name="source">Источнико логов.</param>
+            <returns>Уровень логирования.</returns>
         </member>
         <member name="T:StockSharp.Logging.LogLevels">
             <summary>
@@ -711,19 +694,12 @@
             По-умолчанию равно 500 млс.
             </summary>
         </member>
-        <member name="P:StockSharp.Logging.LogManager.MaxMessageCount">
-            <summary>
-            Максимальное количество накопленных от <see cref="P:StockSharp.Logging.LogManager.Sources"/> сообщений, прежде чем они будут отправлены в <see cref="P:StockSharp.Logging.LogManager.Listeners"/>.
-            По умолчанию равно 1000.
-            </summary>
-            <remarks>Значение 0 означает бесконечный размер буфера. Значение -1 означает отсутствие буферизации.</remarks>
-        </member>
         <member name="T:StockSharp.Logging.LogMessage">
             <summary>
             Отладочное сообщение.
             </summary>
         </member>
-        <member name="M:StockSharp.Logging.LogMessage.#ctor(StockSharp.Logging.ILogSource,System.DateTime,StockSharp.Logging.LogLevels,System.String,System.Object[])">
+        <member name="M:StockSharp.Logging.LogMessage.#ctor(StockSharp.Logging.ILogSource,System.DateTimeOffset,StockSharp.Logging.LogLevels,System.String,System.Object[])">
             <summary>
             Создать <see cref="T:StockSharp.Logging.LogMessage"/>.
             </summary>
@@ -735,7 +711,7 @@
             Используются в случае, если message является форматирующей строкой.
             Подробнее, <see cref="M:System.String.Format(System.String,System.Object[])"/>.</param>
         </member>
-        <member name="M:StockSharp.Logging.LogMessage.#ctor(StockSharp.Logging.ILogSource,System.DateTime,StockSharp.Logging.LogLevels,System.Func{System.String})">
+        <member name="M:StockSharp.Logging.LogMessage.#ctor(StockSharp.Logging.ILogSource,System.DateTimeOffset,StockSharp.Logging.LogLevels,System.Func{System.String})">
             <summary>
             Создать <see cref="T:StockSharp.Logging.LogMessage"/>.
             </summary>
@@ -770,38 +746,174 @@
             Сообщение.
             </summary>
         </member>
-        <member name="T:StockSharp.Logging.SmsLogListener">
+        <member name="T:StockSharp.Logging.MemoryStatistics">
             <summary>
-            Логгер, отсылающий данные через SMS с помощью Google Calendar. 
+            Класс отслеживания занимаемых объектов в памяти.
             </summary>
         </member>
-        <member name="M:StockSharp.Logging.SmsLogListener.#ctor(System.String,System.String)">
+        <member name="M:StockSharp.Logging.MemoryStatistics.DisposeManaged">
             <summary>
-            Создать <see cref="T:StockSharp.Logging.SmsLogListener"/>.
+            Освободить занятые ресурсы.
             </summary>
-            <param name="login">Логин в Google.</param>
-            <param name="password">Пароль в Google.</param>
         </member>
-        <member name="M:StockSharp.Logging.SmsLogListener.#ctor(System.String,System.String,System.String)">
+        <member name="M:StockSharp.Logging.MemoryStatistics.Save(Ecng.Serialization.SettingsStorage)">
             <summary>
-            Создать <see cref="T:StockSharp.Logging.SmsLogListener"/>.
+            Сохранить настройки.
             </summary>
-            <param name="login">Логин в Google.</param>
-            <param name="password">Пароль в Google.</param>
-            <param name="appName">Название сервиса.</param>
+            <param name="storage">Хранилище настроек.</param>
         </member>
-        <member name="M:StockSharp.Logging.SmsLogListener.CreateGoogleEntry(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Logging.MemoryStatistics.Load(Ecng.Serialization.SettingsStorage)">
             <summary>
-            Создать Google сообщение.
+            Загрузить настройки.
             </summary>
-            <param name="message">Отладочное сообщение.</param>
-            <returns>Google сообщение.</returns>
+            <param name="storage">Хранилище настроек.</param>
         </member>
-        <member name="M:StockSharp.Logging.SmsLogListener.OnWriteMessage(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Logging.MemoryStatistics.Clear(System.Boolean)">
             <summary>
-            Записать сообщение.
+            Очистить статистику памяти.
             </summary>
-            <param name="message">Отладочное сообщение.</param>
+            <param name="resetCounter">Очищать ли счетчик объектов.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatistics.ToString">
+            <summary>
+            Получить строковое представление.
+            </summary>
+            <returns>Строковое представление.</returns>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatistics.AddOrRemove">
+            <summary>
+            Добавить или удалить источник <see cref="T:StockSharp.Logging.MemoryStatistics"/> из зарегистрированного <see cref="T:StockSharp.Logging.LogManager"/>.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatistics.Instance">
+            <summary>
+            Объект класса <see cref="T:StockSharp.Logging.MemoryStatistics"/>.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatistics.Interval">
+            <summary>
+            Интервал логирования статистики. По умолчанию 1 минута.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatistics.Values">
+            <summary>
+            Отслеживаемые объекты.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatistics.IsEnabled">
+            <summary>
+            Включен ли источник.
+            </summary>
+        </member>
+        <member name="T:StockSharp.Logging.IMemoryStatisticsValue">
+            <summary>
+            Интерфейс для отслеживания количества активных объектов конктретного типа.
+            </summary>
+        </member>
+        <member name="M:StockSharp.Logging.IMemoryStatisticsValue.Clear(System.Boolean)">
+            <summary>
+            Очистить активные объекты.
+            </summary>
+            <param name="resetCounter">Очищать ли счетчик объектов.</param>
+        </member>
+        <member name="P:StockSharp.Logging.IMemoryStatisticsValue.Name">
+            <summary>
+            Название.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.IMemoryStatisticsValue.ObjectCount">
+            <summary>
+            Количество активных объектов.
+            </summary>
+        </member>
+        <member name="T:StockSharp.Logging.MemoryStatisticsValue`1">
+            <summary>
+            Класс для отслеживания количества активных объектов конктретного типа.
+            </summary>
+            <typeparam name="T">Тип объекта.</typeparam>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.#ctor(System.String)">
+            <summary>
+            Создать <see cref="T:StockSharp.Logging.MemoryStatisticsValue`1"/>.
+            </summary>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Add(`0)">
+            <summary>
+            Добавить новый объект.
+            </summary>
+            <param name="obj">Новый объект.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Add(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Добавить новые объекты.
+            </summary>
+            <param name="objects">Активные объекты.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Remove(`0)">
+            <summary>
+            Удалить активный объект.
+            </summary>
+            <param name="obj">Активный объект.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Remove(System.Int32)">
+            <summary>
+            Изменить <see cref="P:StockSharp.Logging.MemoryStatisticsValue`1.ObjectCount"/>, уменьшив его на количество удаленных объектов.
+            </summary>
+            <param name="count">Количество удаленных объектов.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Remove(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Удалить активные объекты.
+            </summary>
+            <param name="objects">Активные объекты.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Clear(System.Boolean)">
+            <summary>
+            Очистить активные объекты <see cref="P:StockSharp.Logging.MemoryStatisticsValue`1.Objects"/>.
+            </summary>
+            <param name="resetCounter">Очищать ли счетчик объектов.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Load(Ecng.Serialization.SettingsStorage)">
+            <summary>
+            Загрузить настройки.
+            </summary>
+            <param name="storage">Хранилище настроек.</param>
+        </member>
+        <member name="M:StockSharp.Logging.MemoryStatisticsValue`1.Save(Ecng.Serialization.SettingsStorage)">
+            <summary>
+            Сохранить настройки.
+            </summary>
+            <param name="storage">Хранилище настроек.</param>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.Objects">
+            <summary>
+            Активные объекты.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.Name">
+            <summary>
+            Название.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.ObjectCount">
+            <summary>
+            Количество активных объектов.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.ThrowOnRemoveDeleted">
+            <summary>
+            Проверять, что удаляется ранее удаленный объект.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.IsTraceObjects">
+            <summary>
+            Логировать создание и удаление объектов. По умолчанию выключено.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.MemoryStatisticsValue`1.IsObjectTracking">
+            <summary>
+            Включено ли хранение объектов, доступных через <see cref="P:StockSharp.Logging.MemoryStatisticsValue`1.Objects"/>. По-умолчанию, выключено.
+            </summary>
         </member>
         <member name="T:StockSharp.Logging.SoundLogListener">
             <summary>

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,11 +10,10 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class MessagesStream : QshStream3, IMessagesStream
+  sealed class MessagesStream : QshStream, IMessagesStream
   {
     // **********************************************************************
 
@@ -22,14 +21,14 @@ namespace QScalp.History.Reader.V3
 
     // **********************************************************************
 
-    public MessagesStream(BinaryReader br) : base(StreamType.Messages, br) { }
+    public MessagesStream(DataReader dr) : base(StreamType.Messages, dr) { }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      Message msg = new Message(new DateTime(br.ReadInt64()),
-        (MessageType)br.ReadByte(), br.ReadString());
+      Message msg = new Message(new DateTime(dr.ReadInt64()),
+        (MessageType)dr.ReadByte(), dr.ReadString());
 
       if(push && Handler != null)
         Handler(msg);

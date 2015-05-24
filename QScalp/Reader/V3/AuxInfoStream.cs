@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,13 +10,10 @@
 #endregion
 
 using System;
-using System.IO;
-
-using QScalp.History.Internals;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class AuxInfoStream : QshStream3, IAuxInfoStream
+  sealed class AuxInfoStream : QshStream, IAuxInfoStream
   {
     // **********************************************************************
 
@@ -34,9 +31,11 @@ namespace QScalp.History.Reader.V3
     int baseOI;
     int lastOI;
 
+    int lastPrice;
+
     // **********************************************************************
 
-    public event Action<AuxInfo> Handler;
+    public event Action<int, AuxInfo> Handler;
 
     // **********************************************************************
 
@@ -44,58 +43,49 @@ namespace QScalp.History.Reader.V3
 
     // **********************************************************************
 
-    public AuxInfoStream(BinaryReader br)
-      : base(StreamType.AuxInfo, br)
+    public AuxInfoStream(DataReader dr)
+      : base(StreamType.AuxInfo, dr)
     {
-      Security = new Security(br.ReadString());
+      Security = new Security(dr.ReadString());
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      AuxInfo auxInfo = new AuxInfo();
+      AuxInfoFlagsV3 flags = (AuxInfoFlagsV3)dr.ReadByte();
 
-      AuxInfoFlags flags = (AuxInfoFlags)br.ReadByte();
-
-      if((flags & AuxInfoFlags.DateTime) > 0)
-        auxInfo.DateTime = lastDateTime = DataReader.ReadDateTime(br, ref baseDateTime);
-      else
-        auxInfo.DateTime = lastDateTime;
+      if((flags & AuxInfoFlagsV3.DateTime) != 0)
+        lastDateTime = dr.ReadDateTime(ref baseDateTime);
 
 
-      if((flags & AuxInfoFlags.__DateTime2) > 0)
-        auxInfo.__DateTime2 = DataReader.ReadDateTime(br, ref __baseDateTime2);
+      if((flags & AuxInfoFlagsV3.__DateTime2) != 0)
+        dr.ReadDateTime(ref __baseDateTime2);
 
 
-      if((flags & AuxInfoFlags.AskSum) > 0)
-        auxInfo.AskSum = lastAskSum = DataReader.ReadRelative(br, ref baseAskSum);
-      else
-        auxInfo.AskSum = lastAskSum;
+      if((flags & AuxInfoFlagsV3.AskSum) != 0)
+        lastAskSum = dr.ReadRelative(ref baseAskSum);
 
-      if((flags & AuxInfoFlags.BidSum) > 0)
-        auxInfo.BidSum = lastBidSum = DataReader.ReadRelative(br, ref baseBidSum);
-      else
-        auxInfo.BidSum = lastBidSum;
+      if((flags & AuxInfoFlagsV3.BidSum) != 0)
+        lastBidSum = dr.ReadRelative(ref baseBidSum);
 
-      if((flags & AuxInfoFlags.OI) > 0)
-        auxInfo.OI = lastOI = DataReader.ReadRelative(br, ref baseOI);
-      else
-        auxInfo.OI = lastOI;
+      if((flags & AuxInfoFlagsV3.OI) != 0)
+        lastOI = dr.ReadRelative(ref baseOI);
+
+      if((flags & AuxInfoFlagsV3.Price) != 0)
+        lastPrice = dr.ReadPackInt();
 
 
-      if((flags & AuxInfoFlags.__PackInt1) > 0)
-        auxInfo.__PackInt1 = DataReader.ReadPackInt(br);
+      if((flags & AuxInfoFlagsV3.__PackInt2) != 0)
+        dr.ReadPackInt();
 
-      if((flags & AuxInfoFlags.__PackInt2) > 0)
-        auxInfo.__PackInt2 = DataReader.ReadPackInt(br);
-
-      if((flags & AuxInfoFlags.__PackInt3) > 0)
-        auxInfo.__PackInt3 = DataReader.ReadPackInt(br);
+      if((flags & AuxInfoFlagsV3.__PackInt3) != 0)
+        dr.ReadPackInt();
 
 
       if(push && Handler != null)
-        Handler(auxInfo);
+        Handler(Security.Key, new AuxInfo(lastDateTime, lastPrice,
+          lastAskSum, lastBidSum, lastOI, 0, 0, 0, 0, null));
     }
 
     // **********************************************************************

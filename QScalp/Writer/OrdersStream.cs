@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using QScalp.History.Internals;
 
 namespace QScalp.History.Writer
 {
@@ -37,9 +38,35 @@ namespace QScalp.History.Writer
     {
       dw.WriteRecHeader(sid, dateTime);
 
-      dw.Write(order.Id);
-      dw.WritePackInt(order.IsActive ? order.Price : -order.Price);
-      dw.WritePackInt(order.Quantity);
+      if(order.Id == 0 && order.Price == 0)
+        dw.Write((byte)OrderFlags.DropAll);
+      else
+      {
+        OrderFlags flags;
+
+        switch(order.Type)
+        {
+          case OwnOrderType.Regular:
+            flags = OrderFlags.Active;
+            break;
+
+          case OwnOrderType.Stop:
+            flags = OrderFlags.Active | OrderFlags.Stop;
+            break;
+
+          default:
+            flags = OrderFlags.None;
+            break;
+        }
+
+        if(order.Id > 0)
+          flags |= OrderFlags.External;
+
+        dw.Write((byte)flags);
+        dw.WriteLeb128(order.Id);
+        dw.WriteLeb128(order.Price);
+        dw.WriteLeb128(order.Quantity);
+      }
     }
 
     // **********************************************************************

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,11 +10,10 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class TradesStream : QshStream3, ITradesStream
+  sealed class TradesStream : QshStream, ITradesStream
   {
     // **********************************************************************
 
@@ -24,25 +23,27 @@ namespace QScalp.History.Reader.V3
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, TraderReply> Handler;
+    public event Action<int, OwnTradeReply> Handler;
 
     // **********************************************************************
 
-    public TradesStream(BinaryReader br)
-      : base(StreamType.Trades, br)
+    public TradesStream(DataReader dr)
+      : base(StreamType.Trades, dr)
     {
-      Security = new Security(br.ReadString());
+      Security = new Security(dr.ReadString());
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      OwnTradeReply reply = new OwnTradeReply(
-        br.ReadInt64(),
-        DataReader.ReadDateTime(br, ref baseDateTime),
-        DataReader.ReadRelative(br, ref basePrice),
-        DataReader.ReadPackInt(br));
+      long orderId = dr.ReadInt64();
+      DateTime dateTime = dr.ReadDateTime(ref baseDateTime);
+      int price = dr.ReadRelative(ref basePrice);
+      int quantity = dr.ReadPackInt();
+
+      OwnTradeReply reply = new OwnTradeReply(OwnTradeSource.History,
+        dateTime, 0, orderId, price, quantity);
 
       if(push && Handler != null)
         Handler(Security.Key, reply);

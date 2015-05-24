@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -21,9 +21,10 @@ namespace QScalp.History.Reader
   interface IStockStream : ISecurityStream { event Action<int, Quote[], Spread> Handler;  }
   interface IDealsStream : ISecurityStream { event Action<Deal> Handler;  }
   interface IOrdersStream : ISecurityStream { event Action<int, OwnOrder> Handler;  }
-  interface ITradesStream : ISecurityStream { event Action<int, TraderReply> Handler;  }
+  interface ITradesStream : ISecurityStream { event Action<int, OwnTradeReply> Handler;  }
   interface IMessagesStream : IQshStream { event Action<Message> Handler;  }
-  interface IAuxInfoStream : ISecurityStream { event Action<AuxInfo> Handler; }
+  interface IAuxInfoStream : ISecurityStream { event Action<int, AuxInfo> Handler; }
+  interface IOrdLogStream : ISecurityStream { event Action<int, OrdLogEntry> Handler; }
 
   // ************************************************************************
 }

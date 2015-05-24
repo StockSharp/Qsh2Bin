@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -23,19 +23,15 @@ namespace QScalp.History.Writer
 
     // **********************************************************************
 
-    DateTime baseDateTime;
-    DateTime lastDateTime;
-
-    DateTime __baseDateTime2;
-
-    int baseAskSum;
-    int lastAskSum;
-
-    int baseBidSum;
-    int lastBidSum;
-
-    int baseOI;
+    long lastMilliseconds;
+    int lastAskTotal;
+    int lastBidTotal;
     int lastOI;
+    int lastPrice;
+    int lastHiLimit;
+    int lastLoLimit;
+    double lastDeposit;
+    double lastRate;
 
     // **********************************************************************
 
@@ -52,80 +48,95 @@ namespace QScalp.History.Writer
 
     public void Write(DateTime dateTime, AuxInfo auxInfo)
     {
+      dw.WriteRecHeader(sid, dateTime);
+
+      // --------------------------------------------------
+
+      long milliseconds = DateTimeHelper.ToMs(auxInfo.DateTime);
       AuxInfoFlags flags = AuxInfoFlags.None;
 
       // --------------------------------------------------
 
-      if(lastDateTime != auxInfo.DateTime)
-      {
-        lastDateTime = auxInfo.DateTime;
+      if(lastMilliseconds != milliseconds)
         flags |= AuxInfoFlags.DateTime;
-      }
 
+      if(lastAskTotal != auxInfo.AskTotal)
+        flags |= AuxInfoFlags.AskTotal;
 
-      if(auxInfo.__DateTime2 != null)
-        flags |= AuxInfoFlags.__DateTime2;
-
-
-      if(lastAskSum != auxInfo.AskSum)
-      {
-        lastAskSum = auxInfo.AskSum;
-        flags |= AuxInfoFlags.AskSum;
-      }
-
-      if(lastBidSum != auxInfo.BidSum)
-      {
-        lastBidSum = auxInfo.BidSum;
-        flags |= AuxInfoFlags.BidSum;
-      }
+      if(lastBidTotal != auxInfo.BidTotal)
+        flags |= AuxInfoFlags.BidTotal;
 
       if(lastOI != auxInfo.OI)
-      {
-        lastOI = auxInfo.OI;
         flags |= AuxInfoFlags.OI;
+
+      if(lastPrice != auxInfo.Price)
+        flags |= AuxInfoFlags.Price;
+
+      if(lastHiLimit != auxInfo.HiLimit
+        || lastLoLimit != auxInfo.LoLimit
+        || lastDeposit != auxInfo.Deposit)
+      {
+        flags |= AuxInfoFlags.SessionInfo;
       }
 
+      if(lastRate != auxInfo.Rate)
+        flags |= AuxInfoFlags.Rate;
 
-      if(auxInfo.__PackInt1 != null)
-        flags |= AuxInfoFlags.__PackInt1;
-
-      if(auxInfo.__PackInt2 != null)
-        flags |= AuxInfoFlags.__PackInt2;
-
-      if(auxInfo.__PackInt3 != null)
-        flags |= AuxInfoFlags.__PackInt3;
+      if(auxInfo.Message != null)
+        flags |= AuxInfoFlags.Message;
 
       // --------------------------------------------------
 
-      dw.WriteRecHeader(sid, dateTime);
       dw.Write((byte)flags);
 
-      if((flags & AuxInfoFlags.DateTime) > 0)
-        dw.WriteDateTime(auxInfo.DateTime, ref baseDateTime);
+      // --------------------------------------------------
 
+      if((flags & AuxInfoFlags.DateTime) != 0)
+        dw.WriteGrowing(milliseconds, ref lastMilliseconds);
 
-      if((flags & AuxInfoFlags.__DateTime2) > 0)
-        dw.WriteDateTime(auxInfo.__DateTime2.Value, ref __baseDateTime2);
+      if((flags & AuxInfoFlags.AskTotal) != 0)
+      {
+        dw.WriteLeb128(auxInfo.AskTotal - lastAskTotal);
+        lastAskTotal = auxInfo.AskTotal;
+      }
 
+      if((flags & AuxInfoFlags.BidTotal) != 0)
+      {
+        dw.WriteLeb128(auxInfo.BidTotal - lastBidTotal);
+        lastBidTotal = auxInfo.BidTotal;
+      }
 
-      if((flags & AuxInfoFlags.AskSum) > 0)
-        dw.WriteRelative(auxInfo.AskSum, ref baseAskSum);
+      if((flags & AuxInfoFlags.OI) != 0)
+      {
+        dw.WriteLeb128(auxInfo.OI - lastOI);
+        lastOI = auxInfo.OI;
+      }
 
-      if((flags & AuxInfoFlags.BidSum) > 0)
-        dw.WriteRelative(auxInfo.BidSum, ref baseBidSum);
+      if((flags & AuxInfoFlags.Price) != 0)
+      {
+        dw.WriteLeb128(auxInfo.Price - lastPrice);
+        lastPrice = auxInfo.Price;
+      }
 
-      if((flags & AuxInfoFlags.OI) > 0)
-        dw.WriteRelative(auxInfo.OI, ref baseOI);
+      if((flags & AuxInfoFlags.SessionInfo) != 0)
+      {
+        dw.WriteLeb128(auxInfo.HiLimit);
+        dw.WriteLeb128(auxInfo.LoLimit);
+        dw.Write(auxInfo.Deposit);
 
+        lastHiLimit = auxInfo.HiLimit;
+        lastLoLimit = auxInfo.LoLimit;
+        lastDeposit = auxInfo.Deposit;
+      }
 
-      if((flags & AuxInfoFlags.__PackInt1) > 0)
-        dw.WritePackInt(auxInfo.__PackInt1.Value);
+      if((flags & AuxInfoFlags.Rate) != 0)
+      {
+        dw.Write(auxInfo.Rate);
+        lastRate = auxInfo.Rate;
+      }
 
-      if((flags & AuxInfoFlags.__PackInt2) > 0)
-        dw.WritePackInt(auxInfo.__PackInt2.Value);
-
-      if((flags & AuxInfoFlags.__PackInt3) > 0)
-        dw.WritePackInt(auxInfo.__PackInt3.Value);
+      if((flags & AuxInfoFlags.Message) != 0)
+        dw.Write(auxInfo.Message);
 
       // --------------------------------------------------
     }

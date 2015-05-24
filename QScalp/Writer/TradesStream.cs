@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using QScalp.History.Internals;
 
 namespace QScalp.History.Writer
 {
@@ -20,8 +21,10 @@ namespace QScalp.History.Writer
     readonly DataWriter dw;
     readonly int sid;
 
-    DateTime baseDateTime;
-    int basePrice;
+    long lastMilliseconds;
+    long lastTradeId;
+    long lastOrderId;
+    int lastPrice;
 
     // **********************************************************************
 
@@ -36,14 +39,22 @@ namespace QScalp.History.Writer
 
     // **********************************************************************
 
-    public void Write(DateTime dateTime, TraderReply reply)
+    public void Write(DateTime dateTime, OwnTradeReply reply)
     {
       dw.WriteRecHeader(sid, dateTime);
 
-      dw.Write(reply.OId);
-      dw.WriteDateTime(reply.DateTime, ref baseDateTime);
-      dw.WriteRelative(reply.PTicks, ref basePrice);
-      dw.WritePackInt(reply.Quantity);
+      dw.WriteGrowing(DateTimeHelper.ToMs(reply.DateTime), ref lastMilliseconds);
+
+      dw.WriteLeb128(reply.TradeId - lastTradeId);
+      lastTradeId = reply.TradeId;
+
+      dw.WriteLeb128(reply.OrderId - lastOrderId);
+      lastOrderId = reply.OrderId;
+
+      dw.WriteLeb128(reply.Price - lastPrice);
+      lastPrice = reply.Price;
+
+      dw.WriteLeb128(reply.Quantity);
     }
 
     // **********************************************************************

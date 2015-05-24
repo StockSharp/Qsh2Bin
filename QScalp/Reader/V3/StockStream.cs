@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,41 +10,40 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.IO;
+using QScalp.Shared;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class StockStream : QshStream3, IStockStream
+  sealed class StockStream : QshStream, IStockStream
   {
     // **********************************************************************
 
     public Security Security { get; private set; }
     public event Action<int, Quote[], Spread> Handler;
 
-    readonly SortedDictionary<int, int> rawQuotes;
+    readonly RawQuotes rawQuotes;
 
     int basePrice;
 
     // **********************************************************************
 
-    public StockStream(BinaryReader br)
-      : base(StreamType.Stock, br)
+    public StockStream(DataReader dr)
+      : base(StreamType.Stock, dr)
     {
-      Security = new Security(br.ReadString());
-      rawQuotes = new SortedDictionary<int, int>();
+      Security = new Security(dr.ReadString());
+      rawQuotes = new RawQuotes();
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      int n = DataReader.ReadPackInt(br);
+      int n = dr.ReadPackInt();
 
       for(int i = 0; i < n; i++)
       {
-        int p = DataReader.ReadRelative(br, ref basePrice);
-        int v = DataReader.ReadPackInt(br);
+        int p = dr.ReadRelative(ref basePrice);
+        int v = dr.ReadPackInt();
 
         if(v == 0)
           rawQuotes.Remove(p);
@@ -54,42 +53,10 @@ namespace QScalp.History.Reader.V3
 
       if(push && Handler != null)
       {
-        Quote[] quotes = new Quote[rawQuotes.Count];
-        Spread spread = new Spread();
+        Quote[] quotes;
+        Spread spread;
 
-        int i = rawQuotes.Count - 1;
-
-        foreach(KeyValuePair<int, int> kvp in rawQuotes)
-        {
-          quotes[i].Price = kvp.Key;
-
-          if(kvp.Value > 0)
-          {
-            quotes[i].Volume = kvp.Value;
-
-            if(spread.Ask > 0)
-              quotes[i].Type = QuoteType.Ask;
-            else
-            {
-              quotes[i].Type = QuoteType.BestAsk;
-
-              int j = i + 1;
-
-              if(j < quotes.Length)
-              {
-                quotes[j].Type = QuoteType.BestBid;
-                spread = new Spread(quotes[i].Price, quotes[j].Price);
-              }
-            }
-          }
-          else
-          {
-            quotes[i].Volume = -kvp.Value;
-            quotes[i].Type = QuoteType.Bid;
-          }
-
-          i--;
-        }
+        rawQuotes.GetQuotes(out quotes, out spread);
 
         Handler(Security.Key, quotes, spread);
       }

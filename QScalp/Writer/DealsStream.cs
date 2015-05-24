@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -22,13 +22,14 @@ namespace QScalp.History.Writer
     readonly int sid;
     readonly Security s;
 
-    DateTime baseDateTime;
-    DateTime lastDateTime;
+    long lastMilliseconds;
+    long lastId;
 
-    int basePrice;
-    double lastPrice;
+    int lastPrice;
+    double lastRawPrice;
 
     int lastVolume;
+    int lastOI;
 
     // **********************************************************************
 
@@ -48,36 +49,65 @@ namespace QScalp.History.Writer
     {
       dw.WriteRecHeader(sid, dateTime);
 
+      // ------------------------------------------------------------
+
+      long milliseconds = DateTimeHelper.ToMs(deal.DateTime);
       DealFlags flags = (DealFlags)deal.Type & DealFlags.Type;
 
-      if(lastDateTime != deal.DateTime)
-      {
-        lastDateTime = deal.DateTime;
+      if(lastMilliseconds != milliseconds)
         flags |= DealFlags.DateTime;
-      }
 
-      if(lastPrice != deal.Price)
+      if(deal.Id != 0)
+        flags |= DealFlags.Id;
+
+      //if(deal.OrderId != 0)
+      //  flags |= DealFlags.OrderId;
+
+      if(lastRawPrice != deal.Price)
       {
-        lastPrice = deal.Price;
+        lastRawPrice = deal.Price;
         flags |= DealFlags.Price;
       }
 
       if(lastVolume != deal.Volume)
-      {
-        lastVolume = deal.Volume;
         flags |= DealFlags.Volume;
-      }
+
+      if(lastOI != deal.OI)
+        flags |= DealFlags.OI;
+
+      // ------------------------------------------------------------
 
       dw.Write((byte)flags);
 
-      if((flags & DealFlags.DateTime) > 0)
-        dw.WriteDateTime(deal.DateTime, ref baseDateTime);
+      // ------------------------------------------------------------
 
-      if((flags & DealFlags.Price) > 0)
-        dw.WriteRelative(s.GetTicks(deal.Price), ref basePrice);
+      if((flags & DealFlags.DateTime) != 0)
+        dw.WriteGrowing(milliseconds, ref lastMilliseconds);
 
-      if((flags & DealFlags.Volume) > 0)
-        dw.WritePackInt(deal.Volume);
+      if((flags & DealFlags.Id) != 0)
+        dw.WriteGrowing(deal.Id, ref lastId);
+
+      if((flags & DealFlags.Price) != 0)
+      {
+        int p = s.GetTicks(deal.Price);
+
+        dw.WriteLeb128(p - lastPrice);
+        lastPrice = p;
+      }
+
+      if((flags & DealFlags.Volume) != 0)
+      {
+        dw.WriteLeb128(deal.Volume);
+        lastVolume = deal.Volume;
+      }
+
+      if((flags & DealFlags.OI) != 0)
+      {
+        dw.WriteLeb128(deal.OI - lastOI);
+        lastOI = deal.OI;
+      }
+
+      // ------------------------------------------------------------
     }
 
     // **********************************************************************

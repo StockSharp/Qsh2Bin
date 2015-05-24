@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2013 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,11 +10,10 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace QScalp.History.Reader.V3
 {
-  sealed class OrdersStream : QshStream3, IOrdersStream
+  sealed class OrdersStream : QshStream, IOrdersStream
   {
     // **********************************************************************
 
@@ -23,22 +22,33 @@ namespace QScalp.History.Reader.V3
 
     // **********************************************************************
 
-    public OrdersStream(BinaryReader br)
-      : base(StreamType.Orders, br)
+    public OrdersStream(DataReader dr)
+      : base(StreamType.Orders, dr)
     {
-      Security = new Security(br.ReadString());
+      Security = new Security(dr.ReadString());
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      long id = br.ReadInt64();
-      int p = DataReader.ReadPackInt(br);
-      int q = DataReader.ReadPackInt(br);
+      long id = dr.ReadInt64();
+      int p = dr.ReadPackInt();
+      int q = dr.ReadPackInt();
 
       if(push && Handler != null)
-        Handler(Security.Key, p < 0 ? new OwnOrder(id, -p) : new OwnOrder(id, p, q, null));
+      {
+        OwnOrder order;
+
+        if(p < 0)
+          order = new OwnOrder(id, -p);
+        else if(id < 0)
+          order = new OwnOrder(OwnOrderType.Stop, id, p, q, null);
+        else
+          order = new OwnOrder(OwnOrderType.Regular, id, p, q, null);
+
+        Handler(Security.Key, order);
+      }
     }
 
     // **********************************************************************
