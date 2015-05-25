@@ -2,12 +2,10 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Data.OleDb;
 	using System.IO;
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows;
-	using System.Windows.Interop;
 
 	using Ecng.Common;
 	using Ecng.Collections;
@@ -54,7 +52,7 @@
 				var registry = new StorageRegistry();
 
 				((LocalMarketDataDrive)registry.DefaultDrive).Path = binPath;
-				ConvertDirectory(qshPath, registry, ExchangeBoard.MicexEqbr /* надо сделать выбор в GUI */);
+				ConvertDirectory(qshPath, registry, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
 			})
 			.ContinueWith(t =>
 			{
@@ -97,16 +95,18 @@
 
 			using (var qr = QshReader.Open(fileName))
 			{
+				var currentDate = qr.CurrentDateTime;
+
 				for (var i = 0; i < qr.StreamCount; i++)
 				{
-					dynamic stream = qr[i];
-					Security security = GetSecurity(stream.Security, board);
+					var stream = (ISecurityStream)qr[i];
+					var security = GetSecurity(stream.Security, board);
 					var priceStep = security.PriceStep ?? 1;
 					var securityId = security.ToSecurityId();
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
-					switch ((StreamType)stream.Type)
+					switch (stream.Type)
 					{
 						case StreamType.Stock:
 						{
@@ -140,7 +140,7 @@
 								var md = new QuoteChangeMessage
 								{
 									SecurityId = securityId,
-									ServerTime = qr.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									ServerTime = currentDate.ApplyTimeZone(TimeHelper.Moscow),
 									Bids = quotes2.Where(q => q.Side == Sides.Buy),
 									Asks = quotes2.Where(q => q.Side == Sides.Sell),
 								};
@@ -168,10 +168,10 @@
 								{
 									ExecutionType = ExecutionTypes.Tick,
 									SecurityId = securityId,
-									OpenInterest = deal.OI,
+									OpenInterest = deal.OI == 0 ? (long?)null : deal.OI,
 									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 									Volume = deal.Volume,
-									TradeId = deal.Id,
+									TradeId = deal.Id == 0 ? (long?)null : deal.Id,
 									TradePrice = (decimal)deal.Price,
 									OriginSide = 
 										deal.Type == DealType.Buy
@@ -195,14 +195,14 @@
 								{
 									ExecutionType = ExecutionTypes.OrderLog,
 									SecurityId = securityId,
-									OpenInterest = ol.OI,
+									OpenInterest = ol.OI == 0 ? (long?)null : ol.OI,
 									OrderId = ol.OrderId,
 									Price = priceStep * ol.Price,
 									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 									Volume = ol.Amount,
 									Balance = ol.AmountRest,
-									TradeId = ol.DealId,
-									TradePrice = priceStep * ol.DealPrice,
+									TradeId = ol.DealId == 0 ? (long?)null : ol.DealId,
+									TradePrice = ol.DealPrice == 0 ? (decimal?)null : priceStep * ol.DealPrice,
 								};
 
 								if (ol.Flags.Contains(OrdLogFlags.Add))
@@ -296,7 +296,7 @@
 							continue;
 						}
 						default:
-							throw new ArgumentOutOfRangeException("Неподдерживаемый тип потока {0}.".Put((StreamType)stream.Type));
+							throw new ArgumentOutOfRangeException("Неподдерживаемый тип потока {0}.".Put(stream.Type));
 					}
 				}
 
@@ -336,6 +336,7 @@
 				Code = security.Ticker,
 				Board = board,
 				PriceStep = (decimal)security.Step,
+				Decimals = security.Precision
 			};
 		}
 
