@@ -205,6 +205,8 @@
 									TradePrice = ol.DealPrice == 0 ? (decimal?)null : priceStep * ol.DealPrice,
 								};
 
+								var status = 0;
+
 								if (ol.Flags.Contains(OrdLogFlags.Add))
 								{
 									msg.OrderState = OrderStates.Active;
@@ -216,10 +218,16 @@
 								else if (ol.Flags.Contains(OrdLogFlags.Canceled))
 								{
 									msg.OrderState = OrderStates.Done;
+									status |= 0x200000;
 								}
 								else if (ol.Flags.Contains(OrdLogFlags.CanceledGroup))
 								{
 									msg.OrderState = OrderStates.Done;
+									status |= 0x400000;
+								}
+								else if (ol.Flags.Contains(OrdLogFlags.Moved))
+								{
+									status |= 0x100000;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.Buy))
@@ -234,25 +242,37 @@
 								if (ol.Flags.Contains(OrdLogFlags.FillOrKill))
 								{
 									msg.TimeInForce = TimeInForce.MatchOrCancel;
+									status |= 0x00080000;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.Quote))
 								{
 									msg.TimeInForce = TimeInForce.PutInQueue;
+									status |= 0x01;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.Counter))
 								{
+									status |= 0x02;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.CrossTrade))
 								{
+									status |= 0x20000000;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.NonSystem))
 								{
 									msg.IsSystem = false;
+									status |= 0x04;
 								}
+
+								if (ol.Flags.Contains(OrdLogFlags.EndOfTransaction))
+								{
+									status |= 0x1000;
+								}
+
+								msg.OrderStatus = (OrderStatus)status;
 
 								secData.Item4.Add(msg);
 
