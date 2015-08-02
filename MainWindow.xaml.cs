@@ -39,6 +39,9 @@
 
 			_logManager.Listeners.Add(new GuiLogListener(LogControl));
 			_logManager.Listeners.Add(new FileLogListener { LogDirectory = "Logs", SeparateByDates = SeparateByDateModes.FileName });
+
+			Format.SetDataSource<StorageFormats>();
+			Format.SetSelectedValue<StorageFormats>(StorageFormats.Binary);
 		}
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
@@ -52,18 +55,20 @@
 				return;
 			}
 
-			QshFolder.IsEnabled = BinFolder.IsEnabled = false;
+			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = false;
 
 			_logManager.Application.AddInfoLog("Запуск конвертации.");
 			_isStarted = true;
 
 			var qshPath = QshFolder.Folder;
-			var binPath = BinFolder.Folder;
+			var stockSharpPath = StockSharpFolder.Folder;
+
+			var format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary;
 
 			Task.Factory.StartNew(() =>
 			{
 				var registry = new StorageRegistry();
-				((LocalMarketDataDrive)registry.DefaultDrive).Path = binPath;
+				((LocalMarketDataDrive)registry.DefaultDrive).Path = stockSharpPath;
 
 				this.GuiAsync(() =>
 				{
@@ -71,14 +76,14 @@
 					Convert.IsEnabled = true;
 				});
 
-				ConvertDirectory(qshPath, registry, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
+				ConvertDirectory(qshPath, registry, format, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
 			})
 			.ContinueWith(t =>
 			{
 				Convert.Content = "Запустить";
 				Convert.IsEnabled = true;
 
-				QshFolder.IsEnabled = BinFolder.IsEnabled = true;
+				QshFolder.IsEnabled = StockSharpFolder.IsEnabled = true;
 
 				if (t.IsFaulted)
 				{
@@ -101,21 +106,21 @@
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, ExchangeBoard board)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board)
 		{
 			if (!_isStarted)
 				return;
 
-			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, board));
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, board));
+			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board));
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board));
 		}
 
-		private void ConvertFile(string fileName, IStorageRegistry registry, ExchangeBoard board)
+		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board)
 		{
 			if (!_isStarted)
 				return;
 
-			_logManager.Application.AddInfoLog("Конвертация файла {0}...", Path.GetFileName(fileName));
+			_logManager.Application.AddInfoLog("Конвертация файла {0}.", fileName);
 
 			const int maxBufCount = 1000;
 
@@ -368,22 +373,22 @@
 			{
 				if (pair.Value.Item1.Any())
 				{
-					registry.GetQuoteMessageStorage(pair.Key).Save(pair.Value.Item1);
+					registry.GetQuoteMessageStorage(pair.Key, format: format).Save(pair.Value.Item1);
 				}
 
 				if (pair.Value.Item2.Any())
 				{
-					registry.GetTickMessageStorage(pair.Key).Save(pair.Value.Item2);
+					registry.GetTickMessageStorage(pair.Key, format: format).Save(pair.Value.Item2);
 				}
 
 				if (pair.Value.Item3.Any())
 				{
-					registry.GetLevel1MessageStorage(pair.Key).Save(pair.Value.Item3);
+					registry.GetLevel1MessageStorage(pair.Key, format: format).Save(pair.Value.Item3);
 				}
 
 				if (pair.Value.Item4.Any())
 				{
-					registry.GetOrderLogMessageStorage(pair.Key).Save(pair.Value.Item4);
+					registry.GetOrderLogMessageStorage(pair.Key, format: format).Save(pair.Value.Item4);
 				}
 			}
 		}
@@ -402,7 +407,7 @@
 
 		private void OnFolderChange(string folder)
 		{
-			Convert.IsEnabled = !QshFolder.Folder.IsEmpty() && !BinFolder.Folder.IsEmpty();
+			Convert.IsEnabled = !QshFolder.Folder.IsEmpty() && !StockSharpFolder.Folder.IsEmpty();
 		}
 	}
 }

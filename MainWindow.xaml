@@ -23,10 +23,11 @@
 		<Label Grid.Column="0" Grid.Row="0">Директория QSH:</Label>
 		<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChange="OnFolderChange" />
 
-		<Label Grid.Column="0" Grid.Row="2">Директория BIN:</Label>
-		<ex:FolderBrowserPicker x:Name="BinFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
+		<Label Grid.Column="0" Grid.Row="2">Директория S#:</Label>
+		<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
 
-		<Button x:Name="Convert" IsEnabled="False" Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Width="100" Click="Convert_OnClick">Запустить</Button>
+		<ComboBox x:Name="Format" Grid.Column="0" Grid.Row="4"></ComboBox>
+		<Button x:Name="Convert" IsEnabled="False" Grid.Row="4" Grid.Column="1" Width="100" Click="Convert_OnClick">Запустить</Button>
 
 		<xaml:LogControl x:Name="LogControl" Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" />
 	</Grid>
