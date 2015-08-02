@@ -9,6 +9,7 @@
 
 	using Ecng.Common;
 	using Ecng.Collections;
+	using Ecng.Serialization;
 	using Ecng.Xaml;
 
 	using MoreLinq;
@@ -28,10 +29,19 @@
 
 	public partial class MainWindow
 	{
+		private class Settings
+		{
+			public string QshFolder { get; set; }
+			public string StockSharpFolder { get; set; }
+			public StorageFormats Format { get; set; }
+		}
+
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
 		private readonly LogManager _logManager = new LogManager();
 
 		private bool _isStarted;
+
+		private const string _settingsFile = "Qsh2Bin_settings.xml";
 
 		public MainWindow()
 		{
@@ -42,6 +52,22 @@
 
 			Format.SetDataSource<StorageFormats>();
 			Format.SetSelectedValue<StorageFormats>(StorageFormats.Binary);
+
+			try
+			{
+				if (!File.Exists(_settingsFile))
+					return;
+
+				var settings = new XmlSerializer<Settings>().Deserialize(_settingsFile);
+
+				QshFolder.Folder = settings.QshFolder;
+				StockSharpFolder.Folder = settings.StockSharpFolder;
+				Format.SetSelectedValue<StorageFormats>(settings.Format);
+			}
+			catch (Exception ex)
+			{
+				ex.LogError();
+			}
 		}
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
@@ -60,15 +86,26 @@
 			_logManager.Application.AddInfoLog("Запуск конвертации.");
 			_isStarted = true;
 
-			var qshPath = QshFolder.Folder;
-			var stockSharpPath = StockSharpFolder.Folder;
+			var settings = new Settings
+			{
+				QshFolder = QshFolder.Folder,
+				StockSharpFolder = StockSharpFolder.Folder,
+				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary
+			};
 
-			var format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary;
+			try
+			{
+				new XmlSerializer<Settings>().Serialize(settings, _settingsFile);
+			}
+			catch (Exception ex)
+			{
+				ex.LogError();
+			}
 
 			Task.Factory.StartNew(() =>
 			{
 				var registry = new StorageRegistry();
-				((LocalMarketDataDrive)registry.DefaultDrive).Path = stockSharpPath;
+				((LocalMarketDataDrive)registry.DefaultDrive).Path = settings.StockSharpFolder;
 
 				this.GuiAsync(() =>
 				{
@@ -76,7 +113,7 @@
 					Convert.IsEnabled = true;
 				});
 
-				ConvertDirectory(qshPath, registry, format, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
 			})
 			.ContinueWith(t =>
 			{
