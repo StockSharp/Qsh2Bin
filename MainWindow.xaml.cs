@@ -103,6 +103,7 @@
 					var security = GetSecurity(stream.Security, board);
 					var priceStep = security.PriceStep ?? 1;
 					var securityId = security.ToSecurityId();
+					var lastTransactionId = 0L;
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
@@ -191,6 +192,13 @@
 						{
 							((IOrdLogStream)stream).Handler += (key, ol) =>
 							{
+								var currTransactionId = ol.DateTime.Ticks;
+
+								if (lastTransactionId < currTransactionId)
+									lastTransactionId = currTransactionId;
+								else if (lastTransactionId >= currTransactionId)
+									lastTransactionId++;
+
 								var msg = new ExecutionMessage
 								{
 									ExecutionType = ExecutionTypes.OrderLog,
@@ -203,6 +211,7 @@
 									Balance = ol.AmountRest,
 									TradeId = ol.DealId == 0 ? (long?)null : ol.DealId,
 									TradePrice = ol.DealPrice == 0 ? (decimal?)null : priceStep * ol.DealPrice,
+									TransactionId = lastTransactionId
 								};
 
 								var status = 0;
