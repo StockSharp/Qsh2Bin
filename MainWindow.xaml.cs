@@ -41,7 +41,10 @@
 
 		private bool _isStarted;
 
-		private const string _settingsFile = "Qsh2Bin_settings.xml";
+		private const string _settingsFile = "qsh2bin_settings.xml";
+
+		private const string _convertedFilesFile = "converted_files.txt";
+		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
 		{
@@ -55,14 +58,19 @@
 
 			try
 			{
-				if (!File.Exists(_settingsFile))
-					return;
+				if (File.Exists(_settingsFile))
+				{
+					var settings = new XmlSerializer<Settings>().Deserialize(_settingsFile);
 
-				var settings = new XmlSerializer<Settings>().Deserialize(_settingsFile);
+					QshFolder.Folder = settings.QshFolder;
+					StockSharpFolder.Folder = settings.StockSharpFolder;
+					Format.SetSelectedValue<StorageFormats>(settings.Format);
+				}
 
-				QshFolder.Folder = settings.QshFolder;
-				StockSharpFolder.Folder = settings.StockSharpFolder;
-				Format.SetSelectedValue<StorageFormats>(settings.Format);
+				if (File.Exists(_convertedFilesFile))
+				{
+					_convertedFiles.AddRange(File.ReadAllLines(_convertedFilesFile));
+				}
 			}
 			catch (Exception ex)
 			{
@@ -155,6 +163,11 @@
 		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board)
 		{
 			if (!_isStarted)
+				return;
+
+			var fileNameKey = format + "_" + fileName;
+
+			if (_convertedFiles.Contains(fileNameKey))
 				return;
 
 			_logManager.Application.AddInfoLog("Конвертация файла {0}.", fileName);
@@ -428,6 +441,9 @@
 					registry.GetOrderLogMessageStorage(pair.Key, format: format).Save(pair.Value.Item4);
 				}
 			}
+
+			File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
+			_convertedFiles.Add(fileNameKey);
 		}
 
 		private Security GetSecurity(QScalp.Security security, ExchangeBoard board)
