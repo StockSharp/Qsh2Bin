@@ -43,7 +43,7 @@
 
 		private const string _settingsFile = "qsh2bin_settings.xml";
 
-		private const string _convertedFilesFile = "converted_files.txt";
+		private const string _convertedFilesFile = "qsh2bin_converted_files.txt";
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
