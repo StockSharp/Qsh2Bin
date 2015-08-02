@@ -63,6 +63,18 @@
             </summary>
             <returns>Отсортированные адаптеры.</returns>
         </member>
+        <member name="M:StockSharp.Algo.BasketMessageAdapter.Save(Ecng.Serialization.SettingsStorage)">
+            <summary>
+            Сохранить настройки.
+            </summary>
+            <param name="storage">Хранилище настроек.</param>
+        </member>
+        <member name="M:StockSharp.Algo.BasketMessageAdapter.Load(Ecng.Serialization.SettingsStorage)">
+            <summary>
+            Загрузить настройки.
+            </summary>
+            <param name="storage">Хранилище настроек.</param>
+        </member>
         <member name="P:StockSharp.Algo.BasketMessageAdapter.InnerAdapters">
             <summary>
             Адаптеры, с которыми оперирует агрегатор.
@@ -1342,6 +1354,14 @@
             </summary>
             <returns>Строковое представление.</returns>
         </member>
+        <member name="M:StockSharp.Algo.Candles.Candle.CopyTo``1(``0)">
+            <summary>
+            Скопировать данные сообщения в <paramref name="destination"/>.
+            </summary>
+            <typeparam name="TCandle">Тип свечи.</typeparam>
+            <param name="destination">Объект, в который копируется информация.</param>
+            <returns>Объект, в который копируется информация.</returns>
+        </member>
         <member name="P:StockSharp.Algo.Candles.Candle.Security">
             <summary>
             Инструмент.
@@ -1472,6 +1492,12 @@
             Свеча, группируемая по тайм-фрейму.
             </summary>
         </member>
+        <member name="M:StockSharp.Algo.Candles.TimeFrameCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.TimeFrameCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
+        </member>
         <member name="P:StockSharp.Algo.Candles.TimeFrameCandle.TimeFrame">
             <summary>
             Тайм-фрейм.
@@ -1486,6 +1512,12 @@
             <summary>
             Свеча, группируемая по количеству сделок.
             </summary>
+        </member>
+        <member name="M:StockSharp.Algo.Candles.TickCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.TickCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
         </member>
         <member name="P:StockSharp.Algo.Candles.TickCandle.MaxTradeCount">
             <summary>
@@ -1507,6 +1539,12 @@
             Свеча, группируемая по количеству контрактов.
             </summary>
         </member>
+        <member name="M:StockSharp.Algo.Candles.VolumeCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.VolumeCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
+        </member>
         <member name="P:StockSharp.Algo.Candles.VolumeCandle.Volume">
             <summary>
             Максимальное количество контрактов, которое может содержать свеча.
@@ -1522,6 +1560,12 @@
             Свеча, группируемая по ценовому диапазону.
             </summary>
         </member>
+        <member name="M:StockSharp.Algo.Candles.RangeCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.RangeCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
+        </member>
         <member name="P:StockSharp.Algo.Candles.RangeCandle.PriceRange">
             <summary>
             Дельта цены, в рамках которой свеча может содержать сделки.
@@ -1536,6 +1580,12 @@
             <summary>
             Свеча пункто-цифрового графика (график крестики-нолики).
             </summary>
+        </member>
+        <member name="M:StockSharp.Algo.Candles.PnFCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.PnFCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
         </member>
         <member name="P:StockSharp.Algo.Candles.PnFCandle.PnFArg">
             <summary>
@@ -1556,6 +1606,12 @@
             <summary>
             Свеча Рэнко графика.
             </summary>
+        </member>
+        <member name="M:StockSharp.Algo.Candles.RenkoCandle.Clone">
+            <summary>
+            Создать копию объекта <see cref="T:StockSharp.Algo.Candles.RenkoCandle"/>.
+            </summary>
+            <returns>Копия.</returns>
         </member>
         <member name="P:StockSharp.Algo.Candles.RenkoCandle.BoxSize">
             <summary>
@@ -2097,6 +2153,11 @@
         <member name="E:StockSharp.Algo.Candles.IExternalCandleSource.NewCandles">
             <summary>
             Событие появления новых свечек, полученных после подписки через <see cref="M:StockSharp.Algo.Candles.IExternalCandleSource.SubscribeCandles(StockSharp.Algo.Candles.CandleSeries,System.DateTimeOffset,System.DateTimeOffset)"/>.
+            </summary>
+        </member>
+        <member name="E:StockSharp.Algo.Candles.IExternalCandleSource.Stopped">
+            <summary>
+            Событие окончания обработки серии.
             </summary>
         </member>
         <member name="T:StockSharp.Algo.Candles.StorageCandleSource">
@@ -2813,12 +2874,11 @@
             </summary>
             <param name="message">Сообщение.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.OnProcessMessage(StockSharp.Messages.Message,StockSharp.BusinessEntities.MessageDirections)">
+        <member name="M:StockSharp.Algo.Connector.OnProcessMessage(StockSharp.Messages.Message)">
             <summary>
             Обработать сообщение.
             </summary>
             <param name="message">Сообщение.</param>
-            <param name="direction">Направление сообщения.</param>
         </member>
         <member name="M:StockSharp.Algo.Connector.RaiseNewMyTrades(System.Collections.Generic.IEnumerable{StockSharp.BusinessEntities.MyTrade})">
             <summary>
@@ -2992,12 +3052,11 @@
             </summary>
             <param name="portfolios">Найденные портфели.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.RaiseNewMessage(StockSharp.Messages.Message,StockSharp.BusinessEntities.MessageDirections)">
+        <member name="M:StockSharp.Algo.Connector.RaiseNewMessage(StockSharp.Messages.Message)">
             <summary>
             Вызвать событие <see cref="E:StockSharp.Algo.Connector.NewMessage"/>.
             </summary>
             <param name="message">Новое сообщение.</param>
-            <param name="direction">Направление сообщения.</param>
         </member>
         <member name="M:StockSharp.Algo.Connector.SubscribeMarketData(StockSharp.BusinessEntities.Security,StockSharp.Messages.MarketDataTypes)">
             <summary>
@@ -3019,20 +3078,7 @@
             </summary>
             <param name="security">Инструмент, по которому необходимо начать получать новую информацию.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.OnRegisterSecurity(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать новую информацию (например, <see cref="P:StockSharp.BusinessEntities.Security.LastTrade"/> или <see cref="P:StockSharp.BusinessEntities.Security.BestBid"/>) по инструменту.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать новую информацию.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
         <member name="M:StockSharp.Algo.Connector.UnRegisterSecurity(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Остановить получение новой информации.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо остановить получение новой информации.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Connector.OnUnRegisterSecurity(StockSharp.BusinessEntities.Security)">
             <summary>
             Остановить получение новой информации.
             </summary>
@@ -3045,21 +3091,7 @@
             </summary>
             <param name="security">Инструмент, по которому необходимо начать получать котировки.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.OnRegisterMarketDepth(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать котировки (стакан) по инструменту.
-            Значение котировок можно получить через событие <see cref="E:StockSharp.Algo.Connector.MarketDepthsChanged"/>.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать котировки.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
         <member name="M:StockSharp.Algo.Connector.UnRegisterMarketDepth(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Остановить получение котировок по инструменту.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо остановить получение котировок.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Connector.OnUnRegisterMarketDepth(StockSharp.BusinessEntities.Security)">
             <summary>
             Остановить получение котировок по инструменту.
             </summary>
@@ -3085,21 +3117,7 @@
             </summary>
             <param name="security">Инструмент, по которому необходимо начать получать сделки.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.OnRegisterTrades(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать сделки (тиковые данные) по инструменту. Новые сделки будут приходить через
-            событие <see cref="E:StockSharp.BusinessEntities.IConnector.NewTrades"/>.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать сделки.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
         <member name="M:StockSharp.Algo.Connector.UnRegisterTrades(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Остановить получение сделок (тиковые данные) по инструменту.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо остановить получение сделок.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Connector.OnUnRegisterTrades(StockSharp.BusinessEntities.Security)">
             <summary>
             Остановить получение сделок (тиковые данные) по инструменту.
             </summary>
@@ -3135,20 +3153,7 @@
             </summary>
             <param name="security">Инструмент, по которому необходимо начать получать лог заявок.</param>
         </member>
-        <member name="M:StockSharp.Algo.Connector.OnRegisterOrderLog(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать лог заявок для инструмента.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать лог заявок.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
         <member name="M:StockSharp.Algo.Connector.UnRegisterOrderLog(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Остановить получение лога заявок для инструмента.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо остановить получение лога заявок.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Connector.OnUnRegisterOrderLog(StockSharp.BusinessEntities.Security)">
             <summary>
             Остановить получение лога заявок для инструмента.
             </summary>
@@ -3814,6 +3819,17 @@
             По умолчанию включено.
             </summary>
         </member>
+        <member name="P:StockSharp.Algo.Connector.CreateDepthFromLevel1">
+            <summary>
+            Обновлять стакан для инструмента при появлении сообщения <see cref="T:StockSharp.Messages.Level1ChangeMessage"/>.
+            По умолчанию включено.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Algo.Connector.CreateAssociatedSecurity">
+            <summary>
+            Создавать объединенный инструмент для инструментов с разных торговых площадок.
+            </summary>
+        </member>
         <member name="P:StockSharp.Algo.Connector.ErrorCount">
             <summary>
             Число ошибок, переданное через событие <see cref="E:StockSharp.Algo.Connector.Error"/>.
@@ -3935,7 +3951,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Премия опциона.</returns>
+            <returns>Премия опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.Delta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -3944,7 +3960,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Дельта опциона.</returns>
+            <returns>Дельта опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.Gamma(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -3953,7 +3969,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Гамма опциона.</returns>
+            <returns>Гамма опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.Vega(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -3962,7 +3978,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Вега опциона.</returns>
+            <returns>Вега опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.Theta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -3971,7 +3987,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Тета опциона.</returns>
+            <returns>Тета опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.Rho(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -3980,7 +3996,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение.</param>
             <param name="assetPrice">Цена базового актива.</param>
-            <returns>Ро опциона.</returns>
+            <returns>Ро опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.IBlackScholes.ImpliedVolatility(System.DateTimeOffset,System.Decimal)">
             <summary>
@@ -3988,7 +4004,7 @@
             </summary>
             <param name="currentTime">Текущее время.</param>
             <param name="premium">Премия по опциону.</param>
-            <returns>Подразумеваевая волатильность.</returns>
+            <returns>Подразумеваевая волатильность. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="P:StockSharp.Algo.Derivatives.IBlackScholes.Option">
             <summary>
@@ -4032,9 +4048,9 @@
             Получить цену базового актива.
             </summary>
             <param name="assetPrice">Цена базового актива, если она задана.</param>
-            <returns>Цена базового актива.</returns>
+            <returns>Цена базового актива. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Derivatives.BlackScholes.TryRound(System.Decimal)">
+        <member name="M:StockSharp.Algo.Derivatives.BlackScholes.TryRound(System.Nullable{System.Decimal})">
             <summary>
             Округлить до <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.RoundDecimals"/>.
             </summary>
@@ -4048,7 +4064,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Премия опциона.</returns>
+            <returns>Премия опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.Delta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4057,7 +4073,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Дельта опциона.</returns>
+            <returns>Дельта опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.Gamma(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4066,7 +4082,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Гамма опциона.</returns>
+            <returns>Гамма опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.Vega(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4075,7 +4091,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Вега опциона.</returns>
+            <returns>Вега опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.Theta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4084,7 +4100,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Тета опциона.</returns>
+            <returns>Тета опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.Rho(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4093,7 +4109,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Ро опциона.</returns>
+            <returns>Ро опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.ImpliedVolatility(System.DateTimeOffset,System.Decimal)">
             <summary>
@@ -4101,7 +4117,7 @@
             </summary>
             <param name="currentTime">Текущее время.</param>
             <param name="premium">Премия по опциону.</param>
-            <returns>Подразумеваевая волатильность.</returns>
+            <returns>Подразумеваевая волатильность. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BlackScholes.D1(System.Decimal,System.Decimal,System.Double)">
             <summary>
@@ -4178,7 +4194,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Дельта опциона.</returns>
+            <returns>Дельта опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.Gamma(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4187,7 +4203,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Гамма опциона.</returns>
+            <returns>Гамма опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.Vega(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4196,7 +4212,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Вега опциона.</returns>
+            <returns>Вега опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.Theta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4205,7 +4221,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Тета опциона.</returns>
+            <returns>Тета опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.Rho(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4214,7 +4230,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Ро опциона.</returns>
+            <returns>Ро опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.Premium(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4223,7 +4239,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Премия опциона.</returns>
+            <returns>Премия опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.ImpliedVolatility(System.DateTimeOffset,System.Decimal)">
             <summary>
@@ -4231,7 +4247,7 @@
             </summary>
             <param name="currentTime">Текущее время.</param>
             <param name="premium">Премия по опциону.</param>
-            <returns>Подразумеваевая волатильность.</returns>
+            <returns>Подразумеваевая волатильность. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.BasketBlackScholes.ImpliedVolatility(System.DateTimeOffset)">
             <summary>
@@ -4401,7 +4417,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Премия опциона.</returns>
+            <returns>Премия опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.Delta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4410,7 +4426,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Дельта опциона.</returns>
+            <returns>Дельта опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.Gamma(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4419,7 +4435,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Гамма опциона.</returns>
+            <returns>Гамма опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.Vega(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4428,7 +4444,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Вега опциона.</returns>
+            <returns>Вега опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.Theta(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4437,7 +4453,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Тета опциона.</returns>
+            <returns>Тета опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.Rho(System.DateTimeOffset,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
@@ -4446,7 +4462,7 @@
             <param name="currentTime">Текущее время.</param>
             <param name="deviation">Стандартное отклонение. Если оно не указано, то используется <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.DefaultDeviation"/>.</param>
             <param name="assetPrice">Цена базового актива. Если цена не указана, то получается цена последней сделки из <see cref="P:StockSharp.Algo.Derivatives.BlackScholes.UnderlyingAsset"/>.</param>
-            <returns>Ро опциона.</returns>
+            <returns>Ро опциона. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="M:StockSharp.Algo.Derivatives.Black.D1(System.Decimal,System.Decimal,System.Double)">
             <summary>
@@ -4831,13 +4847,13 @@
             <param name="d1">Параметр d1 определения вероятности исполнения опциона.</param>
             <returns>Ро опциона.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Derivatives.DerivativesHelper.ImpliedVolatility(System.Decimal,System.Func{System.Decimal,System.Decimal})">
+        <member name="M:StockSharp.Algo.Derivatives.DerivativesHelper.ImpliedVolatility(System.Decimal,System.Func{System.Decimal,System.Nullable{System.Decimal}})">
             <summary>
             Рассчитать подразумеваемую волатильность (Implied  Volatility).
             </summary>
             <param name="premium">Премия по опциону.</param>
             <param name="getPremium">Рассчитать премию по волатильности.</param>
-            <returns>Подразумеваевая волатильность.</returns>
+            <returns>Подразумеваевая волатильность. Если значение равно <see langword="null"/>, то расчет значения в данный момент невозможен.</returns>
         </member>
         <member name="T:StockSharp.Algo.Derivatives.Synthetic">
             <summary>
@@ -9199,13 +9215,6 @@
             <param name="date">Дата, для которой необходимо загрузить данные.</param>
             <returns>Данные. Если данных не существует, то будет возвращено пустое множество.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Storages.IMarketDataStorage`1.GetReader(System.DateTime)">
-            <summary>
-            Получить считыватель данных за указанную дату.
-            </summary>
-            <param name="date">Дата, для которой необходимо загрузить данные.</param>
-            <returns>Считыватель данных.</returns>
-        </member>
         <member name="P:StockSharp.Algo.Storages.IMarketDataStorage`1.Serializer">
             <summary>
             Сериализатор.
@@ -9277,6 +9286,11 @@
             Время последней записи.
             </summary>
         </member>
+        <member name="P:StockSharp.Algo.Storages.IMarketDataMetaInfo.LastId">
+            <summary>
+            Идентификатор последней записи.
+            </summary>
+        </member>
         <member name="M:StockSharp.Algo.Storages.MetaInfo`1.Write(System.IO.Stream)">
             <summary>
             Сохранить параметры мета-информации в поток.
@@ -9339,13 +9353,6 @@
             <param name="metaInfo">Мета-информация о данных за один день.</param>
             <returns>Данные.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Storages.IMarketDataSerializer`1.Deserialize(StockSharp.Algo.Storages.IDataStorageReader{`0})">
-            <summary>
-            Загрузить данные из потока.
-            </summary>
-            <param name="reader">Считыватель данных.</param>
-            <returns>Данные.</returns>
-        </member>
         <member name="T:StockSharp.Algo.Storages.CacheableMarketDataDrive">
             <summary>
             Хранилище маркет-данных, сохраняющее данных в кэш-хранилище.
@@ -9397,63 +9404,6 @@
             </summary>
             <param name="sourceDrive">Исходное хранилище маркет-данных.</param>
             <param name="cacheDrive">Кэш-хранилище маркет-данных.</param>
-        </member>
-        <member name="T:StockSharp.Algo.Storages.IDataStorageReader`1">
-            <summary>
-            Интерфейс считывателя данных.
-            </summary>
-            <typeparam name="TData">Тип маркет-данных.</typeparam>
-        </member>
-        <member name="M:StockSharp.Algo.Storages.IDataStorageReader`1.Load">
-            <summary>
-            Загрузить данные.
-            </summary>
-            <returns>Данные. Если данных не существует, то будет возвращено пустое множество.</returns>
-        </member>
-        <member name="P:StockSharp.Algo.Storages.IDataStorageReader`1.Stream">
-            <summary>
-            Поток.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Algo.Storages.IDataStorageReader`1.MetaInfo">
-            <summary>
-            Мета-информация о данных за один день.
-            </summary>
-        </member>
-        <member name="T:StockSharp.Algo.Storages.DataStorageReader`1">
-            <summary>
-            Считыватель данных.
-            </summary>
-            <typeparam name="TData">Тип маркет-данных.</typeparam>
-        </member>
-        <member name="M:StockSharp.Algo.Storages.DataStorageReader`1.#ctor(System.IO.Stream,StockSharp.Algo.Storages.IMarketDataMetaInfo,StockSharp.Algo.Storages.IMarketDataSerializer{`0})">
-            <summary>
-            Создать <see cref="T:StockSharp.Algo.Storages.DataStorageReader`1"/>.
-            </summary>
-            <param name="stream">Поток.</param>
-            <param name="metaInfo">Мета-информация о данных за один день.</param>
-            <param name="serializer">Сериализатор.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Storages.DataStorageReader`1.Load">
-            <summary>
-            Загрузить данные.
-            </summary>
-            <returns>Данные. Если данных не существует, то будет возвращено пустое множество.</returns>
-        </member>
-        <member name="M:StockSharp.Algo.Storages.DataStorageReader`1.DisposeManaged">
-            <summary>
-            Очистить ресурсы.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Algo.Storages.DataStorageReader`1.Stream">
-            <summary>
-            Поток.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Algo.Storages.DataStorageReader`1.MetaInfo">
-            <summary>
-            Мета-информация о данных за один день.
-            </summary>
         </member>
         <member name="T:StockSharp.Algo.Storages.ExchangeInfoProvider">
             <summary>
@@ -11412,13 +11362,6 @@
             <param name="date">Дата, для которой необходимо загрузить данные.</param>
             <returns>Данные. Если данных не существует, то будет возвращено пустое множество.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Storages.ContinuousSecurityMarketDataStorage`1.GetReader(System.DateTime)">
-            <summary>
-            Получить считыватель данных за указанную дату.
-            </summary>
-            <param name="date">Дата, для которой необходимо загрузить данные.</param>
-            <returns>Считыватель данных.</returns>
-        </member>
         <member name="T:StockSharp.Algo.Storages.EntityRegistry">
             <summary>
             Хранилище торговых объектов.
@@ -11567,10 +11510,22 @@
             </summary>
             <returns>Идентификаторы.</returns>
         </member>
+        <member name="T:StockSharp.Algo.Storages.ISecurityMarketDataDrive">
+            <summary>
+            Интерфейс, описывающий хранилище для инструмента.
+            </summary>
+        </member>
         <member name="T:StockSharp.Algo.Storages.IMarketDataDrive">
             <summary>
             Интерфейс, описывающий хранилище (база данных, файл и т.д.).
             </summary>
+        </member>
+        <member name="M:StockSharp.Algo.Storages.IMarketDataDrive.GetSecurityDrive(StockSharp.Messages.SecurityId)">
+            <summary>
+            Получить хранилище для инструмента.
+            </summary>
+            <param name="securityId">Идентификатор инструмента.</param>
+            <returns>Хранилище для инструмента.</returns>
         </member>
         <member name="M:StockSharp.Algo.Storages.IMarketDataDrive.GetCandleTypes(StockSharp.Messages.SecurityId,StockSharp.Algo.Storages.StorageFormats)">
             <summary>
@@ -11604,6 +11559,13 @@
             <summary>
             Инициализировать <see cref="T:StockSharp.Algo.Storages.BaseMarketDataDrive"/>.
             </summary>
+        </member>
+        <member name="M:StockSharp.Algo.Storages.BaseMarketDataDrive.GetSecurityDrive(StockSharp.Messages.SecurityId)">
+            <summary>
+            Получить хранилище для инструмента.
+            </summary>
+            <param name="securityId">Идентификатор инструмента.</param>
+            <returns>Хранилище для инструмента.</returns>
         </member>
         <member name="M:StockSharp.Algo.Storages.BaseMarketDataDrive.GetCandleTypes(StockSharp.Messages.SecurityId,StockSharp.Algo.Storages.StorageFormats)">
             <summary>
@@ -13219,7 +13181,7 @@
             Вспомогательный класс для работы с классом <see cref="T:StockSharp.Algo.Strategies.Strategy"/>.
             </summary>
         </member>
-        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.BuyAtMarket(StockSharp.Algo.Strategies.Strategy,System.Decimal)">
+        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.BuyAtMarket(StockSharp.Algo.Strategies.Strategy,System.Nullable{System.Decimal})">
             <summary>
             Создать инициализированный объект заявки на покупку по рыночной цене.
             </summary>
@@ -13227,10 +13189,10 @@
             Заявка не регистрируется, а только создается объект.
             </remarks>
             <param name="strategy">Стратегия.</param>
-            <param name="volume">Объем. Если передается значение 0, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
+            <param name="volume">Объем. Если передается значение <see langword="null"/>, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
             <returns>Инициализированный объект заявки.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.SellAtMarket(StockSharp.Algo.Strategies.Strategy,System.Decimal)">
+        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.SellAtMarket(StockSharp.Algo.Strategies.Strategy,System.Nullable{System.Decimal})">
             <summary>
             Создать инициализированный объект заявки на продажу по рыночной цене.
             </summary>
@@ -13238,10 +13200,10 @@
             Заявка не регистрируется, а только создается объект.
             </remarks>
             <param name="strategy">Стратегия.</param>
-            <param name="volume">Объем. Если передается значение 0, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
+            <param name="volume">Объем. Если передается значение <see langword="null"/>, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
             <returns>Инициализированный объект заявки.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.BuyAtLimit(StockSharp.Algo.Strategies.Strategy,System.Decimal,System.Decimal)">
+        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.BuyAtLimit(StockSharp.Algo.Strategies.Strategy,System.Decimal,System.Nullable{System.Decimal})">
             <summary>
             Создать инициализированный объект заявки на покупку.
             </summary>
@@ -13250,10 +13212,10 @@
             </remarks>
             <param name="strategy">Стратегия.</param>
             <param name="price">Цена.</param>
-            <param name="volume">Объем. Если передается значение 0, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
+            <param name="volume">Объем. Если передается значение <see langword="null"/>, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
             <returns>Инициализированный объект заявки.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.SellAtLimit(StockSharp.Algo.Strategies.Strategy,System.Decimal,System.Decimal)">
+        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.SellAtLimit(StockSharp.Algo.Strategies.Strategy,System.Decimal,System.Nullable{System.Decimal})">
             <summary>
             Создать инициализированный объект заявки на продажу.
             </summary>
@@ -13262,10 +13224,10 @@
             </remarks>
             <param name="strategy">Стратегия.</param>
             <param name="price">Цена.</param>
-            <param name="volume">Объем. Если передается значение 0, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
+            <param name="volume">Объем. Если передается значение <see langword="null"/>, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
             <returns>Инициализированный объект заявки.</returns>
         </member>
-        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.CreateOrder(StockSharp.Algo.Strategies.Strategy,StockSharp.Messages.Sides,System.Decimal,System.Decimal)">
+        <member name="M:StockSharp.Algo.Strategies.StrategyHelper.CreateOrder(StockSharp.Algo.Strategies.Strategy,StockSharp.Messages.Sides,System.Nullable{System.Decimal},System.Nullable{System.Decimal})">
             <summary>
             Создать инициализированный объект заявки.
             </summary>
@@ -13274,8 +13236,8 @@
             </remarks>
             <param name="strategy">Стратегия.</param>
             <param name="direction">Направление заявки.</param>
-            <param name="price">Цена. Если передается значение 0, то выставляется заявка по рыночной цене.</param>
-            <param name="volume">Объем. Если передается значение 0, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
+            <param name="price">Цена. Если передается значение <see langword="null"/>, то выставляется заявка по рыночной цене.</param>
+            <param name="volume">Объем. Если передается значение <see langword="null"/>, то используется значение <see cref="P:StockSharp.Algo.Strategies.Strategy.Volume"/>.</param>
             <returns>Инициализированный объект заявки.</returns>
         </member>
         <member name="M:StockSharp.Algo.Strategies.StrategyHelper.ClosePosition(StockSharp.Algo.Strategies.Strategy,System.Decimal)">
@@ -15690,12 +15652,11 @@
             Приостановить эмуляцию.
             </summary>
         </member>
-        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnProcessMessage(StockSharp.Messages.Message,StockSharp.BusinessEntities.MessageDirections)">
+        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnProcessMessage(StockSharp.Messages.Message)">
             <summary>
             Обработать сообщение, содержащее рыночные данные.
             </summary>
             <param name="message">Сообщение, содержащее рыночные данные.</param>
-            <param name="direction">Направление сообщения.</param>
         </member>
         <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.RegisterTrades(StockSharp.Algo.Testing.TradeGenerator)">
             <summary>
@@ -15752,36 +15713,6 @@
             </summary>
             <param name="security">Инструмент, по которому необходимо начать получать новую информацию.</param>
             <param name="type">Тип рыночных данных.</param>
-        </member>
-        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnRegisterSecurity(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать новую информацию (например, <see cref="P:StockSharp.BusinessEntities.Security.LastTrade"/> или <see cref="P:StockSharp.BusinessEntities.Security.BestBid"/>) по инструменту.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать новую информацию.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
-        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnRegisterMarketDepth(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать котировки (стакан) по инструменту.
-            Значение котировок можно получить через событие <see cref="E:StockSharp.BusinessEntities.IConnector.MarketDepthsChanged"/>.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать котировки.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
-        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnRegisterTrades(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать сделки (тиковые данные) по инструменту. Новые сделки будут приходить через
-            событие <see cref="E:StockSharp.BusinessEntities.IConnector.NewTrades"/>.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать сделки.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
-        </member>
-        <member name="M:StockSharp.Algo.Testing.HistoryEmulationConnector.OnRegisterOrderLog(StockSharp.BusinessEntities.Security)">
-            <summary>
-            Начать получать лог заявок для инструмента.
-            </summary>
-            <param name="security">Инструмент, по которому необходимо начать получать лог заявок.</param>
-            <returns><see langword="true"/>, если удалось подписаться на получение данных, иначе, <see langword="false"/>.</returns>
         </member>
         <member name="P:StockSharp.Algo.Testing.HistoryEmulationConnector.MarketTimeChangedInterval">
             <summary>
@@ -15955,13 +15886,14 @@
             <param name="securityId">Идентификатор инструмента.</param>
             <returns>Сообщение.</returns>
         </member>
-        <member name="M:StockSharp.Algo.MessageConverterHelper.CreateCancelMessage(StockSharp.BusinessEntities.Order,StockSharp.Messages.SecurityId,System.Int64)">
+        <member name="M:StockSharp.Algo.MessageConverterHelper.CreateCancelMessage(StockSharp.BusinessEntities.Order,StockSharp.Messages.SecurityId,System.Int64,System.Nullable{System.Decimal})">
             <summary>
             Создать сообщение снятия старой заявки.
             </summary>
             <param name="order">Заявка.</param>
             <param name="securityId">Идентификатор инструмента.</param>
             <param name="transactionId">Номер транзакции.</param>
+            <param name="volume">Отменяемый объем.</param>
             <returns>Сообщение.</returns>
         </member>
         <member name="M:StockSharp.Algo.MessageConverterHelper.CreateReplaceMessage(StockSharp.BusinessEntities.Order,StockSharp.BusinessEntities.Order,StockSharp.Messages.SecurityId)">
@@ -16852,12 +16784,11 @@
             Отключиться от торговой системы.
             </summary>
         </member>
-        <member name="M:StockSharp.Algo.Testing.RealTimeEmulationTrader`1.OnProcessMessage(StockSharp.Messages.Message,StockSharp.BusinessEntities.MessageDirections)">
+        <member name="M:StockSharp.Algo.Testing.RealTimeEmulationTrader`1.OnProcessMessage(StockSharp.Messages.Message)">
             <summary>
             Обработать сообщение, содержащее рыночные данные.
             </summary>
             <param name="message">Сообщение, содержащее рыночные данные.</param>
-            <param name="direction">Направление сообщения.</param>
         </member>
         <member name="M:StockSharp.Algo.Testing.RealTimeEmulationTrader`1.LookupSecurities(StockSharp.Messages.SecurityLookupMessage)">
             <summary>
@@ -18102,6 +18033,34 @@
             <param name="connector">Подключение. Используется для определения имени канала.</param>
             <param name="name">Имя канала.</param>
             <returns>Адаптер сообщений, пересылающий сообщения через транспортный канал <see cref="T:StockSharp.Messages.IMessageChannel"/>.</returns>
+        </member>
+        <member name="M:StockSharp.Algo.TraderHelper.ToDecimal(System.Double)">
+            <summary>
+            Перевести <see cref="T:System.Double"/> в <see cref="T:System.Decimal"/>. Если исходное значение <see cref="M:System.Double.IsNaN(System.Double)"/> или <see cref="M:System.Double.IsInfinity(System.Double)"/>, то будет возвращено <see langword="null"/>.
+            </summary>
+            <param name="value"><see cref="T:System.Double"/> значение.</param>
+            <returns><see cref="T:System.Decimal"/> значение.</returns>
+        </member>
+        <member name="M:StockSharp.Algo.TraderHelper.ToDecimal(System.Single)">
+            <summary>
+            Перевести <see cref="T:System.Single"/> в <see cref="T:System.Decimal"/>. Если исходное значение <see cref="M:System.Single.IsNaN(System.Single)"/> или <see cref="M:System.Single.IsInfinity(System.Single)"/>, то будет возвращено <see langword="null"/>.
+            </summary>
+            <param name="value"><see cref="T:System.Single"/> значение.</param>
+            <returns><see cref="T:System.Decimal"/> значение.</returns>
+        </member>
+        <member name="M:StockSharp.Algo.TraderHelper.GetIso10962(StockSharp.BusinessEntities.Security)">
+            <summary>
+            Получить для инструмента тип в стандарте ISO 10962.
+            </summary>
+            <param name="security">Инструмент.</param>
+            <returns>Тип в стандарте ISO 10962.</returns>
+        </member>
+        <member name="M:StockSharp.Algo.TraderHelper.FromIso10962(System.String)">
+            <summary>
+            Преобразовать тип в стандарте ISO 10962 в <see cref="T:StockSharp.Messages.SecurityTypes"/>.
+            </summary>
+            <param name="type">Тип в стандарте ISO 10962.</param>
+            <returns>Тип инструмента.</returns>
         </member>
         <member name="M:StockSharp.Algo.TraderHelper.NativePositionManager.StockSharp#Algo#Positions#IPositionManager#ProcessOrder(StockSharp.BusinessEntities.Order)">
             <summary>

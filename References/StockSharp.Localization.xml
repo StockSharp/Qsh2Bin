@@ -1150,7 +1150,7 @@
             Portfolio name, for which an order must be placed/cancelled.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str231Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.TimeInForceKey">
             <summary>
             Time in force
             </summary>
@@ -1240,7 +1240,7 @@
             Blocked
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str250Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.CurrencyKey">
             <summary>
             Currency
             </summary>
@@ -1480,22 +1480,22 @@
             Volatility (historic)
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str300Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.DeltaKey">
             <summary>
             Delta
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str301Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.GammaKey">
             <summary>
             Gamma
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str302Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.VegaKey">
             <summary>
             Vega
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str303Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.ThetaKey">
             <summary>
             Theta
             </summary>
@@ -1565,7 +1565,7 @@
             Best ask volume
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str317Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.RhoKey">
             <summary>
             Rho
             </summary>
@@ -1670,7 +1670,7 @@
             Profit margin
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str339Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.BetaKey">
             <summary>
             Beta
             </summary>
@@ -1795,7 +1795,7 @@
             Short security name.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str365Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.VolumeStepKey">
             <summary>
             Volume step
             </summary>
@@ -2000,14 +2000,14 @@
             Put in queue
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str406Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.FOKKey">
             <summary>
-            Immediately or reject
+            Fill Or Kill
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str407Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.IOCKey">
             <summary>
-            Cancel remainder
+            Immediate Or Cancel
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str408Key">
@@ -2047,7 +2047,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str415ParamsKey">
             <summary>
-            Value {0} duplicated in dates collection.
+            Value {0} has duplicates.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str416Key">
@@ -2490,7 +2490,7 @@
             Security (shares, futures, options etc.).
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str547Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.DecimalsKey">
             <summary>
             Decimals
             </summary>
@@ -7205,9 +7205,14 @@
             Error processing request to refresh the table.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str1539Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.GTCKey">
             <summary>
             Good til cancelled
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.GTDKey">
+            <summary>
+            Good til date
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.SessionKey">
@@ -7605,11 +7610,6 @@
             Message {0} is unacceptable.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str1623Key">
-            <summary>
-            User authorization error.
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str1624ParamsKey">
             <summary>
             Error receiving state of session {0}. Reason '{1}'.
@@ -7822,12 +7822,12 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str1666Key">
             <summary>
-            Receiver
+            Target
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str1667Key">
             <summary>
-            Receiver ID.
+            Target ID.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str1669Key">
@@ -8835,6 +8835,11 @@
             Main
             </summary>
         </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.MainServerKey">
+            <summary>
+            Main server
+            </summary>
+        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.DemoKey">
             <summary>
             Demo
@@ -8843,6 +8848,21 @@
         <member name="F:StockSharp.Localization.LocalizedStrings.BackupKey">
             <summary>
             Backup
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.BackupServerKey">
+            <summary>
+            Backup server
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.RecoveryKey">
+            <summary>
+            Recovery
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.RecoveryServerKey">
+            <summary>
+            Recovery server
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.StalkerKey">
@@ -10507,7 +10527,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2261Key">
             <summary>
-            Alfa-Direct terminal user name.
+            Alfa-Direct terminal login.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2262Key">
@@ -10700,19 +10720,14 @@
             End of iteration.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str2301Key">
-            <summary>
-            User name
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2302Key">
             <summary>
-            User name. Required if server authorization is on.
+            Login. Required if server authorization is on.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2303Key">
             <summary>
-            Password. Require when server authorization is enabled..
+            Password. Require when server authorization is enabled.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2304Key">
@@ -11730,16 +11745,6 @@
             TWS address.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str2533Key">
-            <summary>
-            IQFeed (history)
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str2534Key">
-            <summary>
-            IQFeed (connection)
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2535Key">
             <summary>
             Real-time data
@@ -11882,12 +11887,12 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2563Key">
             <summary>
-            OpenECry user name.
+            OpenECry login.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2564Key">
             <summary>
-            OpenECry user password.
+            OpenECry password.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2565Key">
@@ -11987,7 +11992,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2585Key">
             <summary>
-            Incorrect user name or password.
+            Incorrect login or password.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str2586Key">
@@ -14005,31 +14010,6 @@
             Security ID incorrectly specified.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3017Key">
-            <summary>
-            On ticks
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3018Key">
-            <summary>
-            On ticks&amp;market depths
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3019Key">
-            <summary>
-            On candles
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3020Key">
-            <summary>
-            On candles&amp;market depths
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3021Key">
-            <summary>
-            On orders log
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.PnLUnrealKey">
             <summary>
             P&amp;L (unrealized)
@@ -15910,12 +15890,12 @@
             Data compression parameter. By default equal to BZip.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3425Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.ClientCodeKey">
             <summary>
             Client code
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.Str3426Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.ClientCodeDescKey">
             <summary>
             Client code assigned by the broker.
             </summary>
@@ -16052,7 +16032,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3456Key">
             <summary>
-            User name or password missing.
+            Login or password missing.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3457ParamsKey">
@@ -16107,7 +16087,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3468Key">
             <summary>
-            Additional user name. Used when transaction sending is carried out to a separate server.
+            Additional login. Used when transaction sending is carried out to a separate server.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3469Key">
@@ -17442,7 +17422,7 @@
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3751Key">
             <summary>
-            User name is not specified.
+            Login is not specified.
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.Str3754Key">
@@ -17940,11 +17920,6 @@
             Order registration time.
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr72Key">
-            <summary>
-            Time in force:
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr73Key">
             <summary>
             Last trade time
@@ -18083,11 +18058,6 @@
         <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr113Key">
             <summary>
             Last trade date
-            </summary>
-        </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr114Key">
-            <summary>
-            Expiration date
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr115Key">
@@ -20200,9 +20170,9 @@
             Working days with fall to Saturday or Sunday
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr731Key">
+        <member name="F:StockSharp.Localization.LocalizedStrings.AmountKey">
             <summary>
-            Amount:
+            Amount
             </summary>
         </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr732Key">
@@ -20525,11 +20495,6 @@
             Trade price
             </summary>
         </member>
-        <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr843Key">
-            <summary>
-            Price step is zero.
-            </summary>
-        </member>
         <member name="F:StockSharp.Localization.LocalizedStrings.XamlStr846Key">
             <summary>
             Equity from
@@ -20760,11 +20725,47 @@
             Override dll file from resources. Turned on by default.
             </summary>
         </member>
-        <member name="M:StockSharp.Localization.LocalizedStrings.GetString(System.String)">
+        <member name="F:StockSharp.Localization.LocalizedStrings.WrongTimeOffsetKey">
+            <summary>
+            Time {0} has wrong offset. Expected {1}.
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.TimeOffsetKey">
+            <summary>
+            Time offset
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.TimeOffsetDescriptionKey">
+            <summary>
+            UTC based time offset for market data timestamp.
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.AssociatedSecurityBoardKey">
+            <summary>
+            Combined board code
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.DateTimeFormatKey">
+            <summary>
+            Date and time format
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.TimeFormatKey">
+            <summary>
+            Time format
+            </summary>
+        </member>
+        <member name="F:StockSharp.Localization.LocalizedStrings.DecimalsNotFilledKey">
+            <summary>
+            Decimals not filled.
+            </summary>
+        </member>
+        <member name="M:StockSharp.Localization.LocalizedStrings.GetString(System.String,System.Nullable{Ecng.Localization.Languages})">
             <summary>
             Get localized string.
             </summary>
             <param name="resourceId">Resource unique key.</param>
+            <param name="language">Language.</param>
             <returns>Localized string.</returns>
         </member>
         <member name="E:StockSharp.Localization.LocalizedStrings.Missing">
@@ -21847,7 +21848,7 @@
             Portfolio name, for which an order must be placed/cancelled.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str231">
+        <member name="P:StockSharp.Localization.LocalizedStrings.TimeInForce">
             <summary>
             Time in force
             </summary>
@@ -21937,7 +21938,7 @@
             Blocked
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str250">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Currency">
             <summary>
             Currency
             </summary>
@@ -22177,22 +22178,22 @@
             Volatility (historic)
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str300">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Delta">
             <summary>
             Delta
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str301">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Gamma">
             <summary>
             Gamma
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str302">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Vega">
             <summary>
             Vega
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str303">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Theta">
             <summary>
             Theta
             </summary>
@@ -22262,7 +22263,7 @@
             Best ask volume
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str317">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Rho">
             <summary>
             Rho
             </summary>
@@ -22367,7 +22368,7 @@
             Profit margin
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str339">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Beta">
             <summary>
             Beta
             </summary>
@@ -22492,7 +22493,7 @@
             Short security name.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str365">
+        <member name="P:StockSharp.Localization.LocalizedStrings.VolumeStep">
             <summary>
             Volume step
             </summary>
@@ -22697,14 +22698,14 @@
             Put in queue
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str406">
+        <member name="P:StockSharp.Localization.LocalizedStrings.FOK">
             <summary>
-            Immediately or reject
+            Fill Or Kill
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str407">
+        <member name="P:StockSharp.Localization.LocalizedStrings.IOC">
             <summary>
-            Cancel remainder
+            Immediate Or Cancel
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str408">
@@ -22744,7 +22745,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str415Params">
             <summary>
-            Value {0} duplicated in dates collection.
+            Value {0} has duplicates.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str416">
@@ -23187,7 +23188,7 @@
             Security (shares, futures, options etc.).
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str547">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Decimals">
             <summary>
             Decimals
             </summary>
@@ -27902,9 +27903,14 @@
             Error processing request to refresh the table.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str1539">
+        <member name="P:StockSharp.Localization.LocalizedStrings.GTC">
             <summary>
             Good til cancelled
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.GTD">
+            <summary>
+            Good til date
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Session">
@@ -28302,11 +28308,6 @@
             Message {0} is unacceptable.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str1623">
-            <summary>
-            User authorization error.
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str1624Params">
             <summary>
             Error receiving state of session {0}. Reason '{1}'.
@@ -28519,12 +28520,12 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str1666">
             <summary>
-            Receiver
+            Target
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str1667">
             <summary>
-            Receiver ID.
+            Target ID.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str1669">
@@ -29532,6 +29533,11 @@
             Main
             </summary>
         </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.MainServer">
+            <summary>
+            Main server
+            </summary>
+        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Demo">
             <summary>
             Demo
@@ -29540,6 +29546,21 @@
         <member name="P:StockSharp.Localization.LocalizedStrings.Backup">
             <summary>
             Backup
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.BackupServer">
+            <summary>
+            Backup server
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.Recovery">
+            <summary>
+            Recovery
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.RecoveryServer">
+            <summary>
+            Recovery server
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Stalker">
@@ -31204,7 +31225,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2261">
             <summary>
-            Alfa-Direct terminal user name.
+            Alfa-Direct terminal login.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2262">
@@ -31397,19 +31418,14 @@
             End of iteration.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str2301">
-            <summary>
-            User name
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2302">
             <summary>
-            User name. Required if server authorization is on.
+            Login. Required if server authorization is on.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2303">
             <summary>
-            Password. Require when server authorization is enabled..
+            Password. Require when server authorization is enabled.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2304">
@@ -32427,16 +32443,6 @@
             TWS address.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str2533">
-            <summary>
-            IQFeed (history)
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str2534">
-            <summary>
-            IQFeed (connection)
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2535">
             <summary>
             Real-time data
@@ -32579,12 +32585,12 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2563">
             <summary>
-            OpenECry user name.
+            OpenECry login.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2564">
             <summary>
-            OpenECry user password.
+            OpenECry password.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2565">
@@ -32684,7 +32690,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2585">
             <summary>
-            Incorrect user name or password.
+            Incorrect login or password.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str2586">
@@ -34702,31 +34708,6 @@
             Security ID incorrectly specified.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3017">
-            <summary>
-            On ticks
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3018">
-            <summary>
-            On ticks&amp;market depths
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3019">
-            <summary>
-            On candles
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3020">
-            <summary>
-            On candles&amp;market depths
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3021">
-            <summary>
-            On orders log
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.PnLUnreal">
             <summary>
             P&amp;L (unrealized)
@@ -36607,12 +36588,12 @@
             Data compression parameter. By default equal to BZip.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3425">
+        <member name="P:StockSharp.Localization.LocalizedStrings.ClientCode">
             <summary>
             Client code
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.Str3426">
+        <member name="P:StockSharp.Localization.LocalizedStrings.ClientCodeDesc">
             <summary>
             Client code assigned by the broker.
             </summary>
@@ -36749,7 +36730,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3456">
             <summary>
-            User name or password missing.
+            Login or password missing.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3457Params">
@@ -36804,7 +36785,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3468">
             <summary>
-            Additional user name. Used when transaction sending is carried out to a separate server.
+            Additional login. Used when transaction sending is carried out to a separate server.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3469">
@@ -38139,7 +38120,7 @@
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3751">
             <summary>
-            User name is not specified.
+            Login is not specified.
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.Str3754">
@@ -38637,11 +38618,6 @@
             Order registration time.
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr72">
-            <summary>
-            Time in force:
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr73">
             <summary>
             Last trade time
@@ -38780,11 +38756,6 @@
         <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr113">
             <summary>
             Last trade date
-            </summary>
-        </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr114">
-            <summary>
-            Expiration date
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr115">
@@ -40897,9 +40868,9 @@
             Working days with fall to Saturday or Sunday
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr731">
+        <member name="P:StockSharp.Localization.LocalizedStrings.Amount">
             <summary>
-            Amount:
+            Amount
             </summary>
         </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr732">
@@ -41222,11 +41193,6 @@
             Trade price
             </summary>
         </member>
-        <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr843">
-            <summary>
-            Price step is zero.
-            </summary>
-        </member>
         <member name="P:StockSharp.Localization.LocalizedStrings.XamlStr846">
             <summary>
             Equity from
@@ -41455,6 +41421,41 @@
         <member name="P:StockSharp.Localization.LocalizedStrings.OverrideDll">
             <summary>
             Override dll file from resources. Turned on by default.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.WrongTimeOffset">
+            <summary>
+            Time {0} has wrong offset. Expected {1}.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.TimeOffset">
+            <summary>
+            Time offset
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.TimeOffsetDescription">
+            <summary>
+            UTC based time offset for market data timestamp.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.AssociatedSecurityBoard">
+            <summary>
+            Combined board code
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.DateTimeFormat">
+            <summary>
+            Date and time format
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.TimeFormat">
+            <summary>
+            Time format
+            </summary>
+        </member>
+        <member name="P:StockSharp.Localization.LocalizedStrings.DecimalsNotFilled">
+            <summary>
+            Decimals not filled.
             </summary>
         </member>
         <member name="T:StockSharp.Localization.ProjectDescriptions">

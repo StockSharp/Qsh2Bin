@@ -163,14 +163,9 @@
             Пустое состояние (свеча отсутствует).
             </summary>
         </member>
-        <member name="F:StockSharp.Messages.CandleStates.Started">
+        <member name="F:StockSharp.Messages.CandleStates.Active">
             <summary>
-            Свеча запущена на формирование.
-            </summary>
-        </member>
-        <member name="F:StockSharp.Messages.CandleStates.Changed">
-            <summary>
-            Свеча изменена.
+            Свеча формируется.
             </summary>
         </member>
         <member name="F:StockSharp.Messages.CandleStates.Finished">
@@ -651,22 +646,7 @@
         </member>
         <member name="P:StockSharp.Messages.IMessageAdapter.HeartbeatInterval">
             <summary>
-            Интервал оповещения сервера о том, что подключение еще живое. По-умолчанию равно 1 минуте.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Messages.IMessageAdapter.CreateAssociatedSecurity">
-            <summary>
-            Создавать объединенный инструмент для инструментов с разных торговых площадок.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Messages.IMessageAdapter.CreateDepthFromLevel1">
-            <summary>
-            Обновлять стакан для инструмента при появлении сообщения <see cref="T:StockSharp.Messages.Level1ChangeMessage"/>.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Messages.IMessageAdapter.AssociatedBoardCode">
-            <summary>
-            Код площадки для объединенного инструмента.
+            Интервал оповещения сервера о том, что подключение еще живое.
             </summary>
         </member>
         <member name="P:StockSharp.Messages.IMessageAdapter.PortfolioLookupRequired">
@@ -684,6 +664,11 @@
             Требуется ли дополнительное сообщение <see cref="T:StockSharp.Messages.OrderStatusMessage"/> для получения списка заявок и собственных сделок.
             </summary>
         </member>
+        <member name="P:StockSharp.Messages.IMessageAdapter.AssociatedBoardCode">
+            <summary>
+            Код площадки для объединенного инструмента.
+            </summary>
+        </member>
         <member name="M:StockSharp.Messages.ChannelMessageAdapter.#ctor(StockSharp.Messages.IMessageAdapter,StockSharp.Messages.IMessageChannel,StockSharp.Messages.IMessageChannel)">
             <summary>
             Создать <see cref="T:StockSharp.Messages.ChannelMessageAdapter"/>.
@@ -691,6 +676,21 @@
             <param name="adapter">Адаптер.</param>
             <param name="inputChannel">Транспортный канал входящих сообщений.</param>
             <param name="outputChannel">Транспортный канал исходящих сообщений.</param>
+        </member>
+        <member name="P:StockSharp.Messages.ChannelMessageAdapter.Adapter">
+            <summary>
+            Адаптер.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Messages.ChannelMessageAdapter.InputChannel">
+            <summary>
+            Адаптер.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Messages.ChannelMessageAdapter.OutputChannel">
+            <summary>
+            Адаптер.
+            </summary>
         </member>
         <member name="P:StockSharp.Messages.ChannelMessageAdapter.OwnInputChannel">
             <summary>
@@ -1023,7 +1023,7 @@
         </member>
         <member name="F:StockSharp.Messages.CurrencyTypes.GBP">
             <summary>
-            United Kingdom, Pounds.
+            United Kingdom, Pounds sterling.
             </summary>
         </member>
         <member name="F:StockSharp.Messages.CurrencyTypes.BND">
@@ -1706,6 +1706,11 @@
             Bitcoin.
             </summary>
         </member>
+        <member name="F:StockSharp.Messages.CurrencyTypes.GBX">
+            <summary>
+            United Kingdom, Pence sterling.
+            </summary>
+        </member>
         <member name="T:StockSharp.Messages.DisconnectMessage">
             <summary>
             Сообщение об отключении от торговой системы (при отправке используется как команда, при получении является событием отключения).
@@ -1777,6 +1782,11 @@
         <member name="P:StockSharp.Messages.ExecutionMessage.PortfolioName">
             <summary>
             Название портфеля.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Messages.ExecutionMessage.ClientCode">
+            <summary>
+            Код клиента, присвоенный брокером.
             </summary>
         </member>
         <member name="P:StockSharp.Messages.ExecutionMessage.DepoName">
@@ -1966,6 +1976,11 @@
         <member name="P:StockSharp.Messages.ExecutionMessage.UserOrderId">
             <summary>
             Пользовательский идентификатор заявки. Заполняется при <see cref="P:StockSharp.Messages.ExecutionMessage.ExecutionType"/> равном <see cref="F:StockSharp.Messages.ExecutionTypes.Order"/>.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Messages.ExecutionMessage.Currency">
+            <summary>
+            Валюта торгового инструмента.
             </summary>
         </member>
         <member name="T:StockSharp.Messages.Extensions">
@@ -2433,22 +2448,6 @@
             Значение <see cref="F:System.TimeSpan.Zero"/> означает выключенное оповещение.
             </summary>
         </member>
-        <member name="P:StockSharp.Messages.MessageAdapter.CreateAssociatedSecurity">
-            <summary>
-            Создавать объединенный инструмент для инструментов с разных торговых площадок.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Messages.MessageAdapter.AssociatedBoardCode">
-            <summary>
-            Код площадки для объединенного инструмента.
-            </summary>
-        </member>
-        <member name="P:StockSharp.Messages.MessageAdapter.CreateDepthFromLevel1">
-            <summary>
-            Обновлять стакан для инструмента при появлении сообщения <see cref="T:StockSharp.Messages.Level1ChangeMessage"/>.
-            По умолчанию включено.
-            </summary>
-        </member>
         <member name="P:StockSharp.Messages.MessageAdapter.SecurityLookupRequired">
             <summary>
             Требуется ли дополнительное сообщение <see cref="T:StockSharp.Messages.SecurityLookupMessage"/> для получения списка инструментов.
@@ -2497,30 +2496,35 @@
             Значение по умолчанию равно 10 секундам.
             </remarks>
         </member>
+        <member name="P:StockSharp.Messages.MessageAdapter.AssociatedBoardCode">
+            <summary>
+            Код площадки для объединенного инструмента. По-умолчанию равно ALL.
+            </summary>
+        </member>
         <member name="E:StockSharp.Messages.MessageAdapter.NewOutMessage">
             <summary>
             Событие получения исходящего сообщения.
             </summary>
         </member>
-        <member name="T:StockSharp.Messages.MessageAdapter.CodeTimeOut`1">
+        <member name="T:StockSharp.Messages.MessageAdapter.CodeTimeOut">
             <summary>
             Ожидание выполнения некоего действия, связанного с ключом.
             </summary>
         </member>
-        <member name="M:StockSharp.Messages.MessageAdapter.CodeTimeOut`1.StartTimeOut(`0)">
+        <member name="M:StockSharp.Messages.MessageAdapter.CodeTimeOut.StartTimeOut(System.Int64)">
             <summary>
             Запустить ожидание для ключа.
             </summary>
             <param name="key">Ключ.</param>
         </member>
-        <member name="M:StockSharp.Messages.MessageAdapter.CodeTimeOut`1.ProcessTime(System.TimeSpan)">
+        <member name="M:StockSharp.Messages.MessageAdapter.CodeTimeOut.ProcessTime(System.TimeSpan)">
             <summary>
             Обработать событие изменения рыночного времени и получить те ключи, ожидание для которых закончего.
             </summary>
             <param name="diff">Изменение рыночного времени.</param>
             <returns>Ключи.</returns>
         </member>
-        <member name="P:StockSharp.Messages.MessageAdapter.CodeTimeOut`1.TimeOut">
+        <member name="P:StockSharp.Messages.MessageAdapter.CodeTimeOut.TimeOut">
             <summary>
             Ограничение по времени, в течении которого должен отработать действие.
             </summary>
@@ -3013,6 +3017,11 @@
         <member name="P:StockSharp.Messages.OrderCancelMessage.Volume">
             <summary>
             Отменяемый объем. Если значение не указано, то отменяется весь активный объем заявки.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Messages.OrderCancelMessage.Side">
+            <summary>
+            Направление заявки.
             </summary>
         </member>
         <member name="T:StockSharp.Messages.OrderCondition">
@@ -3902,6 +3911,11 @@
             Отсортированы ли котировки по цене (<see cref="P:StockSharp.Messages.QuoteChangeMessage.Bids"/> по убыванию, <see cref="P:StockSharp.Messages.QuoteChangeMessage.Asks"/> по возрастанию).
             </summary>
         </member>
+        <member name="P:StockSharp.Messages.QuoteChangeMessage.Currency">
+            <summary>
+            Валюта торгового инструмента.
+            </summary>
+        </member>
         <member name="T:StockSharp.Messages.Level1Fields">
             <summary>
             Поля маркет-данных первого уровня.
@@ -4401,7 +4415,7 @@
         </member>
         <member name="F:StockSharp.Messages.MarketDataMessage.DefaultMaxDepth">
             <summary>
-            Максимальная грубина стакана по-умолчанию.
+            Максимальная глубина стакана по-умолчанию.
             </summary>
         </member>
         <member name="M:StockSharp.Messages.MarketDataMessage.#ctor">
@@ -4474,7 +4488,7 @@
         </member>
         <member name="P:StockSharp.Messages.MarketDataMessage.MaxDepth">
             <summary>
-            Максимальная грубина стакана. Используется в случае <see cref="P:StockSharp.Messages.MarketDataMessage.DataType"/> равные <see cref="F:StockSharp.Messages.MarketDataTypes.MarketDepth"/>.
+            Максимальная глубина стакана. Используется в случае <see cref="P:StockSharp.Messages.MarketDataMessage.DataType"/> равное <see cref="F:StockSharp.Messages.MarketDataTypes.MarketDepth"/>.
             </summary>
         </member>
         <member name="P:StockSharp.Messages.MarketDataMessage.NewsId">

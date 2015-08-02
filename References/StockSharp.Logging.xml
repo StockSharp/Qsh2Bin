@@ -981,6 +981,26 @@
             Уровень громкости.
             </summary>
         </member>
+        <member name="T:StockSharp.Logging.TraceSource">
+            <summary>
+            Источник логов, получающий информацию из <see cref="T:System.Diagnostics.Trace"/>.
+            </summary>
+        </member>
+        <member name="M:StockSharp.Logging.TraceSource.#ctor">
+            <summary>
+            Создать <see cref="T:StockSharp.Logging.TraceSource"/>.
+            </summary>
+        </member>
+        <member name="M:StockSharp.Logging.TraceSource.DisposeManaged">
+            <summary>
+            Удалить занятые ресурсы.
+            </summary>
+        </member>
+        <member name="P:StockSharp.Logging.TraceSource.Name">
+            <summary>
+            Название.
+            </summary>
+        </member>
         <member name="T:StockSharp.Logging.UnhandledExceptionSource">
             <summary>
             Источник логов, отсылающий информацию о необработанных ошибках <see cref="E:System.AppDomain.UnhandledException"/> и <see cref="E:System.Threading.Tasks.TaskScheduler.UnobservedTaskException"/>.

@@ -2612,6 +2612,11 @@
             Возвращает массив офферов упорядоченных по возрастанию цены. Первый оффер будет иметь минимальную цену, и будет являться лучшим.
             </summary>
         </member>
+        <member name="P:StockSharp.BusinessEntities.MarketDepth.Currency">
+            <summary>
+            Валюта торгового инструмента.
+            </summary>
+        </member>
         <member name="P:StockSharp.BusinessEntities.MarketDepth.BestBid">
             <summary>
             Лучший бид. Если стакан не содержит бидов, то будет возвращено <see langword="null"/>.
@@ -2736,21 +2741,6 @@
         <member name="P:StockSharp.BusinessEntities.MarketDepthPair.IsFull">
             <summary>
             Пара котировок содержит <see cref="P:StockSharp.BusinessEntities.MarketDepthPair.Bid"/> и <see cref="P:StockSharp.BusinessEntities.MarketDepthPair.Ask"/>.
-            </summary>
-        </member>
-        <member name="T:StockSharp.BusinessEntities.MessageDirections">
-            <summary>
-            Направления сообщений.
-            </summary>
-        </member>
-        <member name="F:StockSharp.BusinessEntities.MessageDirections.In">
-            <summary>
-            Входящее в <see cref="T:StockSharp.Messages.IMessageAdapter"/> сообщение.
-            </summary>
-        </member>
-        <member name="F:StockSharp.BusinessEntities.MessageDirections.Out">
-            <summary>
-            Исходящее из <see cref="T:StockSharp.Messages.IMessageAdapter"/> сообщение.
             </summary>
         </member>
         <member name="T:StockSharp.BusinessEntities.MyTrade">
@@ -3048,6 +3038,11 @@
         <member name="P:StockSharp.BusinessEntities.Order.ClientCode">
             <summary>
             Код клиента, присвоенный брокером.
+            </summary>
+        </member>
+        <member name="P:StockSharp.BusinessEntities.Order.Currency">
+            <summary>
+            Валюта торгового инструмента.
             </summary>
         </member>
         <member name="T:StockSharp.BusinessEntities.OrderFail">
@@ -3360,6 +3355,11 @@
         <member name="P:StockSharp.BusinessEntities.Trade.IsUpTick">
             <summary>
             Является ли тик восходящим или нисходящим в цене.
+            </summary>
+        </member>
+        <member name="P:StockSharp.BusinessEntities.Trade.Currency">
+            <summary>
+            Валюта торгового инструмента.
             </summary>
         </member>
         <member name="P:StockSharp.BusinessEntities.Trade.ExtensionInfo">

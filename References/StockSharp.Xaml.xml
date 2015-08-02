@@ -1428,6 +1428,11 @@
             </summary>
             <param name="items">Новые элементы.</param>
         </member>
+        <member name="M:StockSharp.Xaml.LogMessageCollection.Clear">
+            <summary>
+            Удалить все элементы.
+            </summary>
+        </member>
         <member name="P:StockSharp.Xaml.LogMessageCollection.InfoCount">
             <summary>
             Количество сообщений типа <see cref="F:StockSharp.Logging.LogLevels.Info"/>.
@@ -3593,11 +3598,10 @@
             <see cref="T:System.Windows.DependencyProperty"/> для <see cref="P:StockSharp.Xaml.Monitor.MaxItemsCount"/>.
             </summary>
         </member>
-        <member name="M:StockSharp.Xaml.Monitor.WriteMessage(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Xaml.Monitor.Clear">
             <summary>
-            Записать сообщение.
+            Удалить все сообщения.
             </summary>
-            <param name="message">Отладочное сообщение.</param>
         </member>
         <member name="M:StockSharp.Xaml.Monitor.WriteMessages(System.Collections.Generic.IEnumerable{StockSharp.Logging.LogMessage})">
             <summary>
@@ -3941,11 +3945,10 @@
             Создать <see cref="T:StockSharp.Xaml.MonitorWindow"/>.
             </summary>
         </member>
-        <member name="M:StockSharp.Xaml.MonitorWindow.WriteMessage(StockSharp.Logging.LogMessage)">
+        <member name="M:StockSharp.Xaml.MonitorWindow.Clear">
             <summary>
-            Записать сообщение.
+            Удалить все сообщения.
             </summary>
-            <param name="message">Отладочное сообщение.</param>
         </member>
         <member name="M:StockSharp.Xaml.MonitorWindow.InitializeComponent">
             <summary>
