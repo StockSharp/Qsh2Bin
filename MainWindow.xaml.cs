@@ -31,6 +31,8 @@
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
 		private readonly LogManager _logManager = new LogManager();
 
+		private bool _isStarted;
+
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -41,8 +43,19 @@
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
 		{
-			BusyIndicator.BusyContent = "Запуск конвертации...";
-			BusyIndicator.IsBusy = true;
+			Convert.IsEnabled = false;
+
+			if (_isStarted)
+			{
+				_logManager.Application.AddInfoLog("Остановка конвертации.");
+				_isStarted = false;
+				return;
+			}
+
+			QshFolder.IsEnabled = BinFolder.IsEnabled = false;
+
+			_logManager.Application.AddInfoLog("Запуск конвертации.");
+			_isStarted = true;
 
 			var qshPath = QshFolder.Folder;
 			var binPath = BinFolder.Folder;
@@ -50,13 +63,22 @@
 			Task.Factory.StartNew(() =>
 			{
 				var registry = new StorageRegistry();
-
 				((LocalMarketDataDrive)registry.DefaultDrive).Path = binPath;
+
+				this.GuiAsync(() =>
+				{
+					Convert.Content = "Остановить";
+					Convert.IsEnabled = true;
+				});
+
 				ConvertDirectory(qshPath, registry, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
 			})
 			.ContinueWith(t =>
 			{
-				BusyIndicator.IsBusy = false;
+				Convert.Content = "Запустить";
+				Convert.IsEnabled = true;
+
+				QshFolder.IsEnabled = BinFolder.IsEnabled = true;
 
 				if (t.IsFaulted)
 				{
@@ -72,7 +94,7 @@
 				}
 
 				new MessageBoxBuilder()
-					.Text("Конвертация выполнена.")
+					.Text("Конвертация {0}.".Put(_isStarted ? "выполнена" : "остановлена"))
 					.Owner(this)
 					.Show();
 
@@ -81,13 +103,19 @@
 
 		private void ConvertDirectory(string path, IStorageRegistry registry, ExchangeBoard board)
 		{
+			if (!_isStarted)
+				return;
+
 			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, board));
 			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, board));
 		}
 
 		private void ConvertFile(string fileName, IStorageRegistry registry, ExchangeBoard board)
 		{
-			this.GuiAsync(() => BusyIndicator.BusyContent = "Конвертация файла {0}...".Put(Path.GetFileName(fileName)));
+			if (!_isStarted)
+				return;
+
+			_logManager.Application.AddInfoLog("Конвертация файла {0}...", Path.GetFileName(fileName));
 
 			const int maxBufCount = 1000;
 
@@ -329,9 +357,12 @@
 					}
 				}
 
-				while (qr.CurrentDateTime != DateTime.MaxValue)
+				while (qr.CurrentDateTime != DateTime.MaxValue && _isStarted)
 					qr.Read(true);
 			}
+
+			if (!_isStarted)
+				return;
 
 			foreach (var pair in data)
 			{

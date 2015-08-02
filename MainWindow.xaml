@@ -2,35 +2,32 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ex="clr-namespace:Ecng.Xaml;assembly=Ecng.Xaml"
-        xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:xaml="http://schemas.stocksharp.com/xaml"
         Title="Конвертер данных из формата QSH в формат BIN"
 		Height="530" Width="525">
-	<xctk:BusyIndicator x:Name="BusyIndicator">
-		<Grid Margin="5">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="150"/>
-				<ColumnDefinition/>
-			</Grid.ColumnDefinitions>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="25"/>
-				<RowDefinition Height="5"/>
-				<RowDefinition Height="25"/>
-				<RowDefinition Height="5"/>
-				<RowDefinition Height="25"/>
-				<RowDefinition Height="5"/>
-				<RowDefinition />
-			</Grid.RowDefinitions>
+	<Grid Margin="5">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="150"/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="5"/>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="5"/>
+			<RowDefinition Height="25"/>
+			<RowDefinition Height="5"/>
+			<RowDefinition />
+		</Grid.RowDefinitions>
 
-			<Label Grid.Column="0" Grid.Row="0">Директория QSH:</Label>
-			<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChange="OnFolderChange" />
+		<Label Grid.Column="0" Grid.Row="0">Директория QSH:</Label>
+		<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChange="OnFolderChange" />
 
-			<Label Grid.Column="0" Grid.Row="2">Директория BIN:</Label>
-			<ex:FolderBrowserPicker x:Name="BinFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
-		
-			<Button x:Name="Convert" IsEnabled="False" Grid.Row="4" Grid.ColumnSpan="2" Width="100" Click="Convert_OnClick">Запустить</Button>
-		
-			<xaml:LogControl x:Name="LogControl" Grid.Row="6" Grid.ColumnSpan="2" />
-		</Grid>
-	</xctk:BusyIndicator>
+		<Label Grid.Column="0" Grid.Row="2">Директория BIN:</Label>
+		<ex:FolderBrowserPicker x:Name="BinFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
+
+		<Button x:Name="Convert" IsEnabled="False" Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Width="100" Click="Convert_OnClick">Запустить</Button>
+
+		<xaml:LogControl x:Name="LogControl" Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" />
+	</Grid>
 </Window>
