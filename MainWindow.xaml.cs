@@ -89,7 +89,7 @@
 				return;
 			}
 
-			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = false;
+			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = false;
 
 			_logManager.Application.AddInfoLog("Запуск конвертации.");
 			_isStarted = true;
@@ -128,7 +128,7 @@
 				Convert.Content = "Запустить";
 				Convert.IsEnabled = true;
 
-				QshFolder.IsEnabled = StockSharpFolder.IsEnabled = true;
+				QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = true;
 
 				if (t.IsFaulted)
 				{
