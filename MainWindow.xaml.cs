@@ -324,11 +324,11 @@
 
 								if (ol.Flags.Contains(OrdLogFlags.Buy))
 								{
-									msg.OriginSide = Sides.Buy;
+									msg.Side = Sides.Buy;
 								}
 								else if (ol.Flags.Contains(OrdLogFlags.Sell))
 								{
-									msg.OriginSide = Sides.Sell;
+									msg.Side = Sides.Sell;
 								}
 
 								if (ol.Flags.Contains(OrdLogFlags.FillOrKill))
