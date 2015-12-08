@@ -44,9 +44,9 @@
 
 		private bool _isStarted;
 
-		private const string _settingsFile = @"\Settings\settings.xml";
+		private static readonly string _settingsFile = Path.Combine("Settings", "settings.xml");
+		private static readonly string _convertedFilesFile = Path.Combine("Settings", "converted_files.txt");
 
-		private const string _convertedFilesFile = @"\Settings\converted_files.txt";
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
@@ -60,7 +60,9 @@
 
 			Format.SetDataSource<StorageFormats>();
 			Format.SetSelectedValue<StorageFormats>(StorageFormats.Binary);
-			Board.SelectedBoard = ExchangeBoard.Forts;
+
+			Board.Boards.AddRange(ExchangeBoard.EnumerateExchangeBoards().Where(b => b.Exchange == Exchange.Moex));
+            Board.SelectedBoard = ExchangeBoard.Forts;
 
             try
 			{
@@ -89,22 +91,14 @@
 			}
 		}
 
-		private void Convert_OnClick(object sender, RoutedEventArgs e)
+		protected override void OnClosed(EventArgs e)
 		{
-			Convert.IsEnabled = false;
+			SaveSettings();
+			base.OnClosed(e);
+		}
 
-			if (_isStarted)
-			{
-				_logManager.Application.AddInfoLog("Остановка конвертации.");
-				_isStarted = false;
-				return;
-			}
-
-			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = false;
-
-			_logManager.Application.AddInfoLog("Запуск конвертации.");
-			_isStarted = true;
-
+		private Settings SaveSettings()
+		{
 			var settings = new Settings
 			{
 				QshFolder = QshFolder.Folder,
@@ -123,6 +117,33 @@
 				ex.LogError();
 			}
 
+			return settings;
+		}
+
+		private void LockControls(bool isEnabled)
+		{
+			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = isEnabled;
+		}
+
+		private void Convert_OnClick(object sender, RoutedEventArgs e)
+		{
+			Convert.IsEnabled = false;
+
+			if (_isStarted)
+			{
+				_logManager.Application.AddInfoLog("Остановка конвертации.");
+				_isStarted = false;
+				return;
+			}
+
+			LockControls(false);
+
+			_logManager.Application.AddInfoLog("Запуск конвертации.");
+			_isStarted = true;
+
+			var settings = SaveSettings();
+			var board = Board.SelectedBoard;
+
 			Task.Factory.StartNew(() =>
 			{
 				var registry = new StorageRegistry();
@@ -134,14 +155,14 @@
 					Convert.IsEnabled = true;
 				});
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, Board.SelectedBoard, settings.SecurityLike);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike);
 			})
 			.ContinueWith(t =>
 			{
 				Convert.Content = "Запустить";
 				Convert.IsEnabled = true;
 
-				QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = true;
+				LockControls(true);
 
 				if (t.IsFaulted)
 				{
@@ -309,7 +330,7 @@
 									SecurityId = securityId,
 									OpenInterest = ol.OI == 0 ? (long?)null : ol.OI,
 									OrderId = ol.OrderId,
-									Price = priceStep * ol.Price,
+									OrderPrice = priceStep * ol.Price,
 									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 									Volume = ol.Amount,
 									Balance = ol.AmountRest,
