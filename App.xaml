@@ -1,5 +1,5 @@
 ﻿<sx:BaseApplication 
-					x:Class="StockSharp.Qsh2Bin.App"
+					x:Class="StockSharp.Qsh2StockSharp.App"
 					xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sx="clr-namespace:StockSharp.Xaml;assembly=StockSharp.Xaml"

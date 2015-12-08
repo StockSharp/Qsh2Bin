@@ -1,4 +1,4 @@
-﻿namespace StockSharp.Qsh2Bin
+﻿namespace StockSharp.Qsh2StockSharp
 {
 	using System;
 	using System.Collections.Generic;
@@ -44,22 +44,25 @@
 
 		private bool _isStarted;
 
-		private const string _settingsFile = "qsh2bin_settings.xml";
+		private const string _settingsFile = @"\Settings\settings.xml";
 
-		private const string _convertedFilesFile = "qsh2bin_converted_files.txt";
+		private const string _convertedFilesFile = @"\Settings\converted_files.txt";
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
 		{
 			InitializeComponent();
 
+			Directory.CreateDirectory("Settings");
+
 			_logManager.Listeners.Add(new GuiLogListener(LogControl));
 			_logManager.Listeners.Add(new FileLogListener { LogDirectory = "Logs", SeparateByDates = SeparateByDateModes.FileName });
 
 			Format.SetDataSource<StorageFormats>();
 			Format.SetSelectedValue<StorageFormats>(StorageFormats.Binary);
+			Board.SelectedBoard = ExchangeBoard.Forts;
 
-			try
+            try
 			{
 				if (File.Exists(_settingsFile))
 				{

@@ -1,4 +1,4 @@
-# Qsh -> Bin
+# Qsh -> S#
 Программа конвертации маркет данных (стаканы, тики, ордер лог) из формата QScalp в формат StockSharp.
 
 На текущий момент данные доступны на сайте брокеров [ITInvest](http://www.itinvest.ru/software/spo/qscalp/history/) и Церих ftp://athistory.zerich.com/.

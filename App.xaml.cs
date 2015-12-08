@@ -1,4 +1,4 @@
-﻿namespace StockSharp.Qsh2Bin
+﻿namespace StockSharp.Qsh2StockSharp
 {
 	public partial class App
 	{

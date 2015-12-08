@@ -1,9 +1,9 @@
-﻿<Window x:Class="StockSharp.Qsh2Bin.MainWindow"
+﻿<Window x:Class="StockSharp.Qsh2StockSharp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ex="clr-namespace:Ecng.Xaml;assembly=Ecng.Xaml"
         xmlns:xaml="http://schemas.stocksharp.com/xaml"
-        Title="Конвертер данных из формата QSH в формат BIN"
+        Title="QSH -> StockSharp"
 		Height="530" Width="525">
 	<Grid Margin="5">
 		<Grid.ColumnDefinitions>
