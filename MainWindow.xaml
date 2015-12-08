@@ -7,7 +7,7 @@
 		Height="530" Width="525">
 	<Grid Margin="5">
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="150"/>
+			<ColumnDefinition Width="50"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
@@ -20,14 +20,26 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 
-		<Label Grid.Column="0" Grid.Row="0">Директория QSH:</Label>
+        <Label Grid.Column="0" Grid.Row="0">QSH:</Label>
 		<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChange="OnFolderChange" />
 
-		<Label Grid.Column="0" Grid.Row="2">Директория S#:</Label>
+        <Label Grid.Column="0" Grid.Row="2">S#:</Label>
 		<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
 
 		<ComboBox x:Name="Format" Grid.Column="0" Grid.Row="4"></ComboBox>
-		<Button x:Name="Convert" IsEnabled="False" Grid.Row="4" Grid.Column="1" Width="100" Click="Convert_OnClick">Запустить</Button>
+		
+        <Grid Grid.Row="4" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+			
+			<xaml:ExchangeBoardComboBox x:Name="Board" SelectionChanged="Board_OnSelectionChanged" />
+			<TextBox x:Name="SecurityLike" Grid.Column="2" />
+            <Button x:Name="Convert" IsEnabled="False" Grid.Column="3" Width="100" Click="Convert_OnClick">Запустить</Button>
+        </Grid>
 
 		<xaml:LogControl x:Name="LogControl" Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" />
 	</Grid>

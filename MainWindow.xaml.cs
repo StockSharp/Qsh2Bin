@@ -6,6 +6,7 @@
 	using System.Linq;
 	using System.Threading.Tasks;
 	using System.Windows;
+	using System.Windows.Controls;
 
 	using Ecng.Common;
 	using Ecng.Collections;
@@ -34,6 +35,8 @@
 			public string QshFolder { get; set; }
 			public string StockSharpFolder { get; set; }
 			public StorageFormats Format { get; set; }
+			public string Board { get; set; }
+			public string SecurityLike { get; set; }
 		}
 
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
@@ -65,6 +68,11 @@
 					QshFolder.Folder = settings.QshFolder;
 					StockSharpFolder.Folder = settings.StockSharpFolder;
 					Format.SetSelectedValue<StorageFormats>(settings.Format);
+					SecurityLike.Text = settings.SecurityLike;
+					Board.SelectedBoard =
+						settings.Board.IsEmpty()
+							? ExchangeBoard.Forts
+							: Board.Boards.FirstOrDefault(b => b.Code.CompareIgnoreCase(settings.Board)) ?? ExchangeBoard.Forts;
 				}
 
 				if (File.Exists(_convertedFilesFile))
@@ -98,7 +106,9 @@
 			{
 				QshFolder = QshFolder.Folder,
 				StockSharpFolder = StockSharpFolder.Folder,
-				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary
+				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary,
+				SecurityLike = SecurityLike.Text,
+				Board = Board.SelectedBoard?.Code
 			};
 
 			try
@@ -121,7 +131,7 @@
 					Convert.IsEnabled = true;
 				});
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, ExchangeBoard.Forts /* TODO надо сделать выбор в GUI */);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, Board.SelectedBoard, settings.SecurityLike);
 			})
 			.ContinueWith(t =>
 			{
@@ -151,16 +161,16 @@
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
 		{
 			if (!_isStarted)
 				return;
 
-			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board));
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board));
+			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike));
 		}
 
-		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board)
+		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
 		{
 			if (!_isStarted)
 				return;
@@ -171,6 +181,8 @@
 				return;
 
 			_logManager.Application.AddInfoLog("Конвертация файла {0}.", fileName);
+
+			var isExact = !securityLike.EndsWith("*");
 
 			const int maxBufCount = 1000;
 
@@ -187,6 +199,12 @@
 					var priceStep = security.PriceStep ?? 1;
 					var securityId = security.ToSecurityId();
 					var lastTransactionId = 0L;
+
+					if (!securityLike.IsEmpty() &&
+						(isExact
+							? !securityId.SecurityCode.CompareIgnoreCase(securityLike)
+							: !securityId.SecurityCode.ContainsIgnoreCase(securityLike)))
+						continue;
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
@@ -235,7 +253,7 @@
 
 								if (secData.Item1.Count > maxBufCount)
 								{
-									registry.GetQuoteMessageStorage(security).Save(secData.Item1);
+									registry.GetQuoteMessageStorage(security, format: format).Save(secData.Item1);
 									secData.Item1.Clear();
 								}
 								//}
@@ -265,7 +283,7 @@
 
 								if (secData.Item2.Count > maxBufCount)
 								{
-									registry.GetTickMessageStorage(security).Save(secData.Item2);
+									registry.GetTickMessageStorage(security, format: format).Save(secData.Item2);
 									secData.Item2.Clear();
 								}
 							};
@@ -370,7 +388,7 @@
 
 								if (secData.Item4.Count > maxBufCount)
 								{
-									registry.GetOrderLogMessageStorage(security).Save(secData.Item4);
+									registry.GetOrderLogMessageStorage(security, format: format).Save(secData.Item4);
 									secData.Item4.Clear();
 								}
 							};
@@ -394,7 +412,7 @@
 
 								if (secData.Item3.Count > maxBufCount)
 								{
-									registry.GetLevel1MessageStorage(security).Save(secData.Item3);
+									registry.GetLevel1MessageStorage(security, format: format).Save(secData.Item3);
 									secData.Item3.Clear();
 								}
 							};
@@ -412,8 +430,11 @@
 					}
 				}
 
-				while (qr.CurrentDateTime != DateTime.MaxValue && _isStarted)
-					qr.Read(true);
+				if (data.Count > 0)
+				{
+					while (qr.CurrentDateTime != DateTime.MaxValue && _isStarted)
+						qr.Read(true);
+				}
 			}
 
 			if (!_isStarted)
@@ -442,8 +463,11 @@
 				}
 			}
 
-			File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
-			_convertedFiles.Add(fileNameKey);
+			if (data.Count > 0)
+			{
+				File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
+				_convertedFiles.Add(fileNameKey);
+			}
 		}
 
 		private Security GetSecurity(QScalp.Security security, ExchangeBoard board)
@@ -458,9 +482,19 @@
 			};
 		}
 
+		private void TryEnable()
+		{
+			Convert.IsEnabled = !QshFolder.Folder.IsEmpty() && !StockSharpFolder.Folder.IsEmpty() && Board.SelectedBoard != null;
+		}
+
+		private void Board_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			TryEnable();
+		}
+
 		private void OnFolderChange(string folder)
 		{
-			Convert.IsEnabled = !QshFolder.Folder.IsEmpty() && !StockSharpFolder.Folder.IsEmpty();
+			TryEnable();
 		}
 	}
 }
