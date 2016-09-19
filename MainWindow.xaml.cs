@@ -292,11 +292,12 @@
 							{
 								secData.Item2.Add(new ExecutionMessage
 								{
+									HasTradeInfo = true,
 									ExecutionType = ExecutionTypes.Tick,
 									SecurityId = securityId,
 									OpenInterest = deal.OI == 0 ? (long?)null : deal.OI,
 									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
-									Volume = deal.Volume,
+									TradeVolume = deal.Volume,
 									TradeId = deal.Id == 0 ? (long?)null : deal.Id,
 									TradePrice = (decimal)deal.Price,
 									OriginSide = 
@@ -332,7 +333,7 @@
 									OrderId = ol.OrderId,
 									OrderPrice = priceStep * ol.Price,
 									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
-									Volume = ol.Amount,
+									OrderVolume = ol.Amount,
 									Balance = ol.AmountRest,
 									TradeId = ol.DealId == 0 ? (long?)null : ol.DealId,
 									TradePrice = ol.DealPrice == 0 ? (decimal?)null : priceStep * ol.DealPrice,
@@ -406,7 +407,7 @@
 									status |= 0x1000;
 								}
 
-								msg.OrderStatus = (OrderStatus)status;
+								msg.OrderStatus = status;
 
 								secData.Item4.Add(msg);
 

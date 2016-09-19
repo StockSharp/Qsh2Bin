@@ -21,10 +21,10 @@
 		</Grid.RowDefinitions>
 
         <Label Grid.Column="0" Grid.Row="0">QSH:</Label>
-		<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChange="OnFolderChange" />
+		<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChanged="OnFolderChange" />
 
         <Label Grid.Column="0" Grid.Row="2">S#:</Label>
-		<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="2" FolderChange="OnFolderChange" />
+		<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="2" FolderChanged="OnFolderChange" />
 
 		<ComboBox x:Name="Format" Grid.Column="0" Grid.Row="4"></ComboBox>
 		
