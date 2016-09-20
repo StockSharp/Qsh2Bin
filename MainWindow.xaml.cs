@@ -191,6 +191,8 @@
 					.Owner(this)
 					.Show();
 
+				_isStarted = false;
+
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
