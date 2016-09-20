@@ -44,6 +44,8 @@
 
 		private bool _isStarted;
 
+		private DateTimeOffset _startConvertTime;
+
 		private static readonly string _settingsFile = Path.Combine("Settings", "settings.xml");
 		private static readonly string _convertedFilesFile = Path.Combine("Settings", "converted_files.txt");
 
@@ -155,6 +157,8 @@
 					Convert.IsEnabled = true;
 				});
 
+				_startConvertTime = DateTimeOffset.Now;
+
 				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike);
 			})
 			.ContinueWith(t =>
@@ -177,8 +181,13 @@
 					return;
 				}
 
+				var text = "Конвертация {0} {1}.".Put(_isStarted ? "выполнена за" : "остановлена через", 
+					(DateTimeOffset.Now - _startConvertTime).ToString("g"));
+
+				_logManager.Application.AddInfoLog(text);
+
 				new MessageBoxBuilder()
-					.Text("Конвертация {0}.".Put(_isStarted ? "выполнена" : "остановлена"))
+					.Text(text)
 					.Owner(this)
 					.Show();
 
