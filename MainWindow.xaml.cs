@@ -240,7 +240,7 @@
 
 			_logManager.Application.AddInfoLog("Начата конвертация файла {0}.", fileName);
 
-			var isExact = !securityLike.EndsWith("*");
+			var securitiesStrings = securityLike.Split(',');
 
 			const int maxBufCount = 1000;
 
@@ -258,11 +258,14 @@
 					var securityId = security.ToSecurityId();
 					var lastTransactionId = 0L;
 
-					if (!securityLike.IsEmpty() &&
-						(isExact
-							? !securityId.SecurityCode.CompareIgnoreCase(securityLike)
-							: !securityId.SecurityCode.ContainsIgnoreCase(securityLike)))
-						continue;
+					if (!securityLike.IsEmptyOrWhiteSpace())
+					{
+						var streamDontContainsSecuritiesFromMask = securitiesStrings.All(
+							(sec) => !securityId.SecurityCode.ContainsIgnoreCase(sec));
+
+
+						if (streamDontContainsSecuritiesFromMask) continue;
+					}
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 

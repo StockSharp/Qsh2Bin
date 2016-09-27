@@ -48,8 +48,9 @@
 					<Label Grid.Column="0" Grid.Row="0" Margin="2.5">Board code:</Label>
 					<xaml:ExchangeBoardComboBox x:Name="Board" Grid.Column="1" Grid.Row="0" SelectionChanged="Board_OnSelectionChanged" Width="70" HorizontalAlignment="Left" Margin="2.5"/>
 
-					<Label Grid.Column="0" Grid.Row="1" Margin="2.5">Security:</Label>
-					<TextBox x:Name="SecurityLike" Grid.Column="1" Grid.Row="1" Width="180" HorizontalAlignment="Left" Margin="2.5"/>
+					<Label Grid.Column="0" Grid.Row="1" Margin="2.5">Security Code Masks:</Label>
+					<TextBox x:Name="SecurityLike" Grid.Column="1" Grid.Row="1" Width="150" HorizontalAlignment="Left" Margin="2.5"
+							 ToolTip="Masks, separated by commas. For examle 'BR,CHMF-9.14,LKOH'. 'BR' mask will leads to conversion all found securities, contains BR sumbols in code, like 'BR','SBRF','VTBR' and etc."/>
 				</Grid>
 			</GroupBox>
 			<GroupBox Grid.Column="1" Header="Convertion settings" Padding="5" Margin="2.5">
