@@ -37,6 +37,7 @@
 			public StorageFormats Format { get; set; }
 			public string Board { get; set; }
 			public string SecurityLike { get; set; }
+			public bool MultiThread { get; set; }
 		}
 
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
@@ -50,6 +51,7 @@
 		private static readonly string _convertedFilesFile = Path.Combine("Settings", "converted_files.txt");
 
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> _convertedPerTaskPoolFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
 		{
@@ -76,6 +78,7 @@
 					StockSharpFolder.Folder = settings.StockSharpFolder;
 					Format.SetSelectedValue<StorageFormats>(settings.Format);
 					SecurityLike.Text = settings.SecurityLike;
+					MultiThread.IsChecked = settings.MultiThread;
 					Board.SelectedBoard =
 						settings.Board.IsEmpty()
 							? ExchangeBoard.Forts
@@ -107,7 +110,8 @@
 				StockSharpFolder = StockSharpFolder.Folder,
 				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary,
 				SecurityLike = SecurityLike.Text,
-				Board = Board.SelectedBoard?.Code
+				Board = Board.SelectedBoard?.Code,
+				MultiThread = MultiThread.IsChecked != null && MultiThread.IsChecked.Value
 			};
 
 			try
@@ -124,7 +128,7 @@
 
 		private void LockControls(bool isEnabled)
 		{
-			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = isEnabled;
+			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = MultiThread.IsEnabled = isEnabled;
 		}
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
@@ -159,7 +163,7 @@
 
 				_startConvertTime = DateTimeOffset.Now;
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread);
 			})
 			.ContinueWith(t =>
 			{
@@ -196,13 +200,32 @@
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread)
 		{
 			if (!_isStarted)
 				return;
 
-			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike));
+			if (!multithread)
+				Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
+			else
+			{
+				var tasks = new List<Task>();
+				Directory.GetFiles(path, "*.qsh").ForEach(f =>
+				{
+					var task = new Task(() => ConvertFile(f, registry, format, board, securityLike));
+					tasks.Add(task);
+					task.Start();
+				});
+
+				Task.WaitAll(tasks.ToArray());
+				tasks.ForEach(t => t.Dispose());
+				tasks.Clear();
+			}
+			//пишем имена сконвертированных в деректории файлов qsh, в файл 
+			File.AppendAllLines(_convertedFilesFile, _convertedPerTaskPoolFiles);
+			_convertedPerTaskPoolFiles.Clear();
+
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread));
 		}
 
 		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
@@ -215,7 +238,7 @@
 			if (_convertedFiles.Contains(fileNameKey))
 				return;
 
-			_logManager.Application.AddInfoLog("Конвертация файла {0}.", fileName);
+			_logManager.Application.AddInfoLog("Начата конвертация файла {0}.", fileName);
 
 			var isExact = !securityLike.EndsWith("*");
 
@@ -501,9 +524,12 @@
 
 			if (data.Count > 0)
 			{
-				File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
+				//File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
 				_convertedFiles.Add(fileNameKey);
+				_convertedPerTaskPoolFiles.Add(fileNameKey);
 			}
+
+			_logManager.Application.AddInfoLog("Завершена конвертация файла {0}.", fileName);
 		}
 
 		private Security GetSecurity(QScalp.Security security, ExchangeBoard board)
