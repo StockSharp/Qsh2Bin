@@ -84,46 +84,65 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ecng.Collections, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Ecng.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Ecng.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Serialization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Ecng.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Xaml, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Ecng.Xaml.dll</HintPath>
-    </Reference>
     <Reference Include="MoreLinq">
-      <HintPath>References\MoreLinq.dll</HintPath>
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\MoreLinq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.Algo, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\StockSharp.Algo.dll</HintPath>
+    <Reference Include="Ecng.Collections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Collections.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.BusinessEntities, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\StockSharp.BusinessEntities.dll</HintPath>
+    <Reference Include="Ecng.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Common.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.Localization">
-      <HintPath>References\StockSharp.Localization.dll</HintPath>
+    <Reference Include="Ecng.ComponentModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.ComponentModel.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.Logging, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\StockSharp.Logging.dll</HintPath>
+    <Reference Include="Ecng.Serialization, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Serialization.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.Messages">
-      <HintPath>References\StockSharp.Messages.dll</HintPath>
+    <Reference Include="Ecng.Web, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Web.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="StockSharp.Xaml, Version=4.1.19.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\StockSharp.Xaml.dll</HintPath>
+    <Reference Include="Ecng.Xaml, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Xaml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Algo, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Algo.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.BusinessEntities, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.BusinessEntities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Community, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Community.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Configuration, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Localization, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Localization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Logging, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Logging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Messages, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Messages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StockSharp.Xaml, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Xaml.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -214,6 +233,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
