@@ -26,8 +26,6 @@
 	using StockSharp.Messages;
 	using StockSharp.Xaml;
 
-	using Security = StockSharp.BusinessEntities.Security;
-
 	public partial class MainWindow
 	{
 		private class Settings
@@ -111,7 +109,7 @@
 				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary,
 				SecurityLike = SecurityLike.Text,
 				Board = Board.SelectedBoard?.Code,
-				MultiThread = MultiThread.IsChecked != null && MultiThread.IsChecked.Value
+				MultiThread = MultiThread.IsChecked == true
 			};
 
 			try
@@ -228,6 +226,20 @@
 			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread));
 		}
 
+		private void TryFlushData<TMessage>(IStorageRegistry registry, BusinessEntities.Security security, StorageFormats format, object arg, List<TMessage> messages, QshReader reader)
+			where TMessage : Messages.Message
+		{
+			const int maxBufCount = 1000;
+
+			if (messages.Count <= maxBufCount)
+				return;
+
+			_logManager.Application.AddInfoLog("Файл прочитан на {1}%.", messages.Count, (reader.FilePosition * 100) / reader.FileSize);
+
+			registry.GetStorage(security, typeof(TMessage), arg, null, format).Save(messages);
+			messages.Clear();
+		}
+
 		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
 		{
 			if (!_isStarted)
@@ -242,12 +254,11 @@
 
 			var securitiesStrings = securityLike.Split(",");
 
-			const int maxBufCount = 1000;
-
-			var data = new Dictionary<Security, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
+			var data = new Dictionary<BusinessEntities.Security, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
 
 			using (var qr = QshReader.Open(fileName))
 			{
+				var reader = qr;
 				var currentDate = qr.CurrentDateTime;
 
 				for (var i = 0; i < qr.StreamCount; i++)
@@ -262,10 +273,16 @@
 					{
 						var secCode = securityId.SecurityCode;
 
-						var streamContainsSecurityFromMask = securitiesStrings.All(mask =>
+						var streamContainsSecurityFromMask = securitiesStrings.Any(mask =>
 						{
 							var isEndMulti = mask.EndsWith("*");
 							var isStartMulti = mask.StartsWith("*");
+
+							if (isStartMulti)
+								mask = mask.Substring(1);
+
+							if (isEndMulti)
+								mask = mask.Substring(0, mask.Length - 1);
 
 							if (isEndMulti)
 							{
@@ -329,11 +346,8 @@
 								//{
 								secData.Item1.Add(md);
 
-								if (secData.Item1.Count > maxBufCount)
-								{
-									registry.GetQuoteMessageStorage(security, format: format).Save(secData.Item1);
-									secData.Item1.Clear();
-								}
+								TryFlushData(registry, security, format, null, secData.Item1, reader);
+
 								//}
 								//else
 								//	_logManager.Application.AddErrorLog("Стакан для {0} в момент {1} не прошел валидацию. Лучший бид {2}, Лучший офер {3}.", security, qr.CurrentDateTime, md.BestBid, md.BestAsk);
@@ -360,11 +374,7 @@
 											: (deal.Type == DealType.Sell ? Sides.Sell : (Sides?)null)
 								});
 
-								if (secData.Item2.Count > maxBufCount)
-								{
-									registry.GetTickMessageStorage(security, format: format).Save(secData.Item2);
-									secData.Item2.Clear();
-								}
+								TryFlushData(registry, security, format, ExecutionTypes.Tick, secData.Item2, reader);
 							};
 							break;
 						}
@@ -465,11 +475,7 @@
 
 								secData.Item4.Add(msg);
 
-								if (secData.Item4.Count > maxBufCount)
-								{
-									registry.GetOrderLogMessageStorage(security, format: format).Save(secData.Item4);
-									secData.Item4.Clear();
-								}
+								TryFlushData(registry, security, format, ExecutionTypes.OrderLog, secData.Item4, reader);
 							};
 							break;
 						}
@@ -489,11 +495,7 @@
 								.TryAdd(Level1Fields.LowPrice, priceStep * info.LoLimit)
 								.TryAdd(Level1Fields.OpenInterest, (decimal)info.OI));
 
-								if (secData.Item3.Count > maxBufCount)
-								{
-									registry.GetLevel1MessageStorage(security, format: format).Save(secData.Item3);
-									secData.Item3.Clear();
-								}
+								TryFlushData(registry, security, format, null, secData.Item3, reader);
 							};
 							break;
 						}
@@ -552,9 +554,9 @@
 			_logManager.Application.AddInfoLog("Завершена конвертация файла {0}.", fileName);
 		}
 
-		private Security GetSecurity(QScalp.Security security, ExchangeBoard board)
+		private BusinessEntities.Security GetSecurity(QScalp.Security security, ExchangeBoard board)
 		{
-			return new Security
+			return new BusinessEntities.Security
 			{
 				Id = _idGenerator.GenerateId(security.Ticker, board),
 				Code = security.Ticker,
