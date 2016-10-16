@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -58,7 +58,8 @@ namespace QScalp
   {
     public int SecKey;
     public long Id;
-    public double Price;
+    public long OrderId;
+    public int Price;
     public int Volume;
     public DealType Type;
     public int OI;
@@ -75,24 +76,20 @@ namespace QScalp
     public readonly int Price;
     public readonly int Quantity;
 
-    public readonly object Transaction;
-
     public OwnOrder(long id, int price)
     {
       this.Type = OwnOrderType.None;
       this.Id = id;
       this.Price = price;
       this.Quantity = 0;
-      this.Transaction = null;
     }
 
-    public OwnOrder(OwnOrderType type, long id, int price, int quantity, object t)
+    public OwnOrder(OwnOrderType type, long id, int price, int quantity)
     {
       this.Type = type;
       this.Id = id;
       this.Price = price;
       this.Quantity = quantity;
-      this.Transaction = t;
     }
   }
 
@@ -130,13 +127,6 @@ namespace QScalp
     public readonly MessageType Type;
     public readonly string Text;
 
-    public Message(MessageType type, string text)
-    {
-      this.DateTime = DateTime.Now;
-      this.Type = type;
-      this.Text = text;
-    }
-
     public Message(DateTime dateTime, MessageType type, string text)
     {
       this.DateTime = dateTime;
@@ -162,8 +152,6 @@ namespace QScalp
 
     public readonly double Rate;
     public readonly string Message;
-
-    public AuxInfo() { }
 
     public AuxInfo(DateTime dateTime, int price, int askTotal, int bidTotal,
       int oi, int hiLimit, int loLimit, double deposit, double rate, string message)

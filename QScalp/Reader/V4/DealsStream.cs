@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -20,6 +20,7 @@ namespace QScalp.History.Reader.V4
 
     long lastMilliseconds;
     long lastId;
+    long lastOrderId;
     int lastPrice;
     int lastVolume;
     int lastOI;
@@ -52,7 +53,7 @@ namespace QScalp.History.Reader.V4
         lastId = dr.ReadGrowing(lastId);
 
       if((flags & DealFlags.OrderId) != 0)
-        dr.ReadLeb128();
+        lastOrderId += dr.ReadLeb128();
 
       if((flags & DealFlags.Price) != 0)
         lastPrice += (int)dr.ReadLeb128();
@@ -71,8 +72,9 @@ namespace QScalp.History.Reader.V4
           SecKey = Security.Key,
           Type = (DealType)(flags & DealFlags.Type),
           Id = lastId,
+          OrderId = lastOrderId,
           DateTime = DateTimeHelper.FromMs(lastMilliseconds),
-          Price = Security.GetPrice(lastPrice),
+          Price = lastPrice,
           Volume = lastVolume,
           OI = lastOI
         });

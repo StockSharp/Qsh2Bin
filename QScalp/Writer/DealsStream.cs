@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -24,10 +24,8 @@ namespace QScalp.History.Writer
 
     long lastMilliseconds;
     long lastId;
-
+    long lastOrderId;
     int lastPrice;
-    double lastRawPrice;
-
     int lastVolume;
     int lastOI;
 
@@ -60,14 +58,11 @@ namespace QScalp.History.Writer
       if(deal.Id != 0)
         flags |= DealFlags.Id;
 
-      //if(deal.OrderId != 0)
-      //  flags |= DealFlags.OrderId;
+      if(lastOrderId != deal.OrderId)
+        flags |= DealFlags.OrderId;
 
-      if(lastRawPrice != deal.Price)
-      {
-        lastRawPrice = deal.Price;
+      if(lastPrice != deal.Price)
         flags |= DealFlags.Price;
-      }
 
       if(lastVolume != deal.Volume)
         flags |= DealFlags.Volume;
@@ -87,12 +82,16 @@ namespace QScalp.History.Writer
       if((flags & DealFlags.Id) != 0)
         dw.WriteGrowing(deal.Id, ref lastId);
 
+      if((flags & DealFlags.OrderId) != 0)
+      {
+        dw.WriteLeb128(deal.OrderId - lastOrderId);
+        lastOrderId = deal.OrderId;
+      }
+
       if((flags & DealFlags.Price) != 0)
       {
-        int p = s.GetTicks(deal.Price);
-
-        dw.WriteLeb128(p - lastPrice);
-        lastPrice = p;
+        dw.WriteLeb128(deal.Price - lastPrice);
+        lastPrice = deal.Price;
       }
 
       if((flags & DealFlags.Volume) != 0)

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -15,10 +15,10 @@ namespace QScalp.History
 
   enum StreamType
   {
-    Stock = 0x10,
+    Quotes = 0x10,
     Deals = 0x20,
-    Orders = 0x30,
-    Trades = 0x40,
+    OwnOrders = 0x30,
+    OwnTrades = 0x40,
     Messages = 0x50,
     AuxInfo = 0x60,
     OrdLog = 0x70,

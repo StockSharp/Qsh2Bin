@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -19,15 +19,15 @@ namespace QScalp
     // **********************************************************************
 
     const int stepRoundDigits = 14;
-
     static readonly char[] sep = new char[] { ':' };
 
-    string entry;
     double step, inverseStep;
 
     NumberFormatInfo priceFormat;
 
     // **********************************************************************
+
+    public string Entry { get; private set; }
 
     public string CName { get; private set; }
     public string Ticker { get; private set; }
@@ -65,66 +65,55 @@ namespace QScalp
 
     // **********************************************************************
 
-    public string Entry
-    {
-      get { return entry; }
-
-      set
-      {
-        if(string.IsNullOrEmpty(value))
-        {
-          entry = string.Empty;
-          Reset(string.Empty);
-          return;
-        }
-        else
-          entry = value;
-
-        string[] s = entry.Split(sep);
-
-        if(s.Length == 5)
-        {
-          CName = s[0];
-          Ticker = s[1];
-          AuxCode = s[2];
-
-          int id = 0;
-
-          bool error = s[3].Length > 0 && !int.TryParse(s[3],
-            NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out id);
-
-          Id = id;
-
-          if(double.TryParse(s[4], NumberStyles.Float,
-            NumberFormatInfo.InvariantInfo, out step))
-          {
-            Step = step;
-          }
-          else
-          {
-            Step = 1;
-            error = true;
-          }
-
-          if(error)
-          {
-            Ticker = "{" + Ticker + "}";
-            Key = 0;
-          }
-          else
-            InitKey();
-        }
-        else
-          Reset("{err}");
-      }
-    }
-
-    // **********************************************************************
-
     public Security(string entry)
     {
       priceFormat = (NumberFormatInfo)NumberFormatInfo.CurrentInfo.Clone();
+
+      if(string.IsNullOrEmpty(entry))
+      {
+        this.Entry = string.Empty;
+        Reset(string.Empty);
+        return;
+      }
+
       this.Entry = entry;
+
+      string[] s = entry.Split(sep);
+
+      if(s.Length == 5)
+      {
+        CName = s[0];
+        Ticker = s[1];
+        AuxCode = s[2];
+
+        int id = 0;
+
+        bool error = s[3].Length > 0 && !int.TryParse(s[3],
+          NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out id);
+
+        Id = id;
+
+        if(double.TryParse(s[4], NumberStyles.Float,
+          NumberFormatInfo.InvariantInfo, out step))
+        {
+          Step = step;
+        }
+        else
+        {
+          Step = 1;
+          error = true;
+        }
+
+        if(error)
+        {
+          Ticker = "{" + Ticker + "}";
+          Key = 0;
+        }
+        else
+          InitKey();
+      }
+      else
+        Reset("{err}");
     }
 
     // **********************************************************************
@@ -176,7 +165,7 @@ namespace QScalp
 
     public override string ToString()
     {
-      if(entry.Length == 0)
+      if(Entry.Length == 0)
         return string.Empty;
 
       return CName + " / " + Ticker

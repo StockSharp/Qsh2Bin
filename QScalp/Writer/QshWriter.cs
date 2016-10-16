@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -65,9 +65,9 @@ namespace QScalp.History.Writer
 
     // **********************************************************************
 
-    public StockStream CreateStockStream(Security s)
+    public QuotesStream CreateQuotesStream(Security s)
     {
-      return new StockStream(dw, streamCount++, s);
+      return new QuotesStream(dw, streamCount++, s);
     }
 
     public DealsStream CreateDealsStream(Security s)
@@ -75,14 +75,14 @@ namespace QScalp.History.Writer
       return new DealsStream(dw, streamCount++, s);
     }
 
-    public OrdersStream CreateOrdersStream(Security s)
+    public OwnOrdersStream CreateOwnOrdersStream(Security s)
     {
-      return new OrdersStream(dw, streamCount++, s);
+      return new OwnOrdersStream(dw, streamCount++, s);
     }
 
-    public TradesStream CreateTradesStream(Security s)
+    public OwnTradesStream CreateOwnTradesStream(Security s)
     {
-      return new TradesStream(dw, streamCount++, s);
+      return new OwnTradesStream(dw, streamCount++, s);
     }
 
     public MessagesStream CreateMessagesStream()

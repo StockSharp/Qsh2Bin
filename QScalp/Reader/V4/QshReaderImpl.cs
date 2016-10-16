@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -57,20 +57,20 @@ namespace QScalp.History.Reader.V4
 
         switch(st)
         {
-          case StreamType.Stock:
-            streams[i] = new StockStream(dr);
+          case StreamType.Quotes:
+            streams[i] = new QuotesStream(dr);
             break;
 
           case StreamType.Deals:
             streams[i] = new DealsStream(dr);
             break;
 
-          case StreamType.Orders:
-            streams[i] = new OrdersStream(dr);
+          case StreamType.OwnOrders:
+            streams[i] = new OwnOrdersStream(dr);
             break;
 
-          case StreamType.Trades:
-            streams[i] = new TradesStream(dr);
+          case StreamType.OwnTrades:
+            streams[i] = new OwnTradesStream(dr);
             break;
 
           case StreamType.Messages:

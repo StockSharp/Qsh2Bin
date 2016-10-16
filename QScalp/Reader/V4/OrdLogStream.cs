@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -17,21 +17,21 @@ using QScalp.Shared;
 
 namespace QScalp.History.Reader.V4
 {
-  sealed class OrdLogStream : QshStream, IOrdLogStream, IStockStream, IDealsStream, IAuxInfoStream
+  sealed class OrdLogStream : QshStream, IOrdLogStream, IQuotesStream, IDealsStream, IAuxInfoStream
   {
     // **********************************************************************
 
-    readonly TimeSpan stockPushInterval = new TimeSpan(0, 0, 0, 0, 5);
+    readonly TimeSpan quotesPushInterval = new TimeSpan(0, 0, 0, 0, 5);
 
     // **********************************************************************
 
     readonly RawQuotes rawQuotes;
 
-    Action<int, Quote[], Spread> stockHandler;
+    Action<int, Quote[], Spread> quotesHandler;
     Action<Deal> dealHandler;
     Action<int, AuxInfo> auxInfoHandler;
 
-    DateTime lastStockPush;
+    DateTime lastQuotesPush;
     long lastPushedDealId;
 
     // **********************************************************************
@@ -55,10 +55,10 @@ namespace QScalp.History.Reader.V4
 
     // **********************************************************************
 
-    event Action<int, Quote[], Spread> IStockStream.Handler
+    event Action<int, Quote[], Spread> IQuotesStream.Handler
     {
-      add { stockHandler += value; }
-      remove { stockHandler -= value; }
+      add { quotesHandler += value; }
+      remove { quotesHandler -= value; }
     }
 
     event Action<Deal> IDealsStream.Handler
@@ -124,33 +124,35 @@ namespace QScalp.History.Reader.V4
       if((flags & OrdLogEntryFlags.Amount) != 0)
         lastAmount = (int)dr.ReadLeb128();
 
-      if((flags & OrdLogEntryFlags.AmountRest) != 0)
-        amountRest = lastAmountRest = (int)dr.ReadLeb128();
-      else if(isAdd)
-        amountRest = lastAmount;
-      else
-        amountRest = 0;
+      if(isFill)
+      {
+        if((flags & OrdLogEntryFlags.AmountRest) != 0)
+          amountRest = lastAmountRest = (int)dr.ReadLeb128();
+        else
+          amountRest = lastAmountRest;
 
-      if((flags & OrdLogEntryFlags.DealId) != 0)
-        dealId = lastDealId = (int)dr.ReadGrowing(lastDealId);
-      else if(isFill)
-        dealId = lastDealId;
+        if((flags & OrdLogEntryFlags.DealId) != 0)
+          dealId = lastDealId = (int)dr.ReadGrowing(lastDealId);
+        else
+          dealId = lastDealId;
+
+        if((flags & OrdLogEntryFlags.DealPrice) != 0)
+          dealPrice = lastDealPrice += (int)dr.ReadLeb128();
+        else
+          dealPrice = lastDealPrice;
+
+        if((flags & OrdLogEntryFlags.OI) != 0)
+          oi = lastOI += (int)dr.ReadLeb128();
+        else
+          oi = lastOI;
+      }
       else
+      {
+        amountRest = isAdd ? lastAmount : 0;
         dealId = 0;
-
-      if((flags & OrdLogEntryFlags.DealPrice) != 0)
-        dealPrice = lastDealPrice += (int)dr.ReadLeb128();
-      else if(isFill)
-        dealPrice = lastDealPrice;
-      else
         dealPrice = 0;
-
-      if((flags & OrdLogEntryFlags.OI) != 0)
-        oi = lastOI += (int)dr.ReadLeb128();
-      else if(isFill)
-        oi = lastOI;
-      else
         oi = 0;
+      }
 
       // ------------------------------------------------------------
 
@@ -194,11 +196,11 @@ namespace QScalp.History.Reader.V4
         {
           DateTime now = DateTime.UtcNow;
 
-          if(now - lastStockPush > stockPushInterval)
+          if(now - lastQuotesPush > quotesPushInterval)
           {
-            lastStockPush = now;
+            lastQuotesPush = now;
 
-            if(stockHandler != null)
+            if(quotesHandler != null)
             {
               Quote[] quotes;
               Spread spread;
@@ -206,7 +208,7 @@ namespace QScalp.History.Reader.V4
               rawQuotes.GetQuotes(out quotes, out spread);
 
               if(spread.Ask > 0 && spread.Bid > 0)
-                stockHandler(Security.Key, quotes, spread);
+                quotesHandler(Security.Key, quotes, spread);
             }
 
             if(auxInfoHandler != null)
@@ -236,7 +238,7 @@ namespace QScalp.History.Reader.V4
               Type = isSell ? DealType.Sell : DealType.Buy,
               Id = dealId,
               DateTime = dateTime,
-              Price = Security.GetPrice(dealPrice),
+              Price = dealPrice,
               Volume = lastAmount,
               OI = oi
             });

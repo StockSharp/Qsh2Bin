@@ -288,9 +288,9 @@
 
 					switch (stream.Type)
 					{
-						case StreamType.Stock:
+						case StreamType.Quotes:
 						{
-							((IStockStream)stream).Handler += (key, quotes, spread) =>
+							((IQuotesStream)stream).Handler += (key, quotes, spread) =>
 							{
 								var quotes2 = quotes.Select(q =>
 								{
@@ -353,7 +353,7 @@
 									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 									TradeVolume = deal.Volume,
 									TradeId = deal.Id == 0 ? (long?)null : deal.Id,
-									TradePrice = (decimal)deal.Price,
+									TradePrice = deal.Price,
 									OriginSide = 
 										deal.Type == DealType.Buy
 											? Sides.Buy
@@ -497,8 +497,8 @@
 							};
 							break;
 						}
-						case StreamType.Orders:
-						case StreamType.Trades:
+						case StreamType.OwnOrders:
+						case StreamType.OwnTrades:
 						case StreamType.Messages:
 						case StreamType.None:
 						{

@@ -9,29 +9,47 @@
 */
 #endregion
 
-namespace QScalp.History.Reader.V4
+using System;
+
+namespace QScalp.History.Reader.V3
 {
-  abstract class QshStream : IQshStream
+  sealed class OwnOrdersStream : QshStream, IOwnOrdersStream
   {
     // **********************************************************************
 
-    public StreamType Type { get; private set; }
+    public Security Security { get; private set; }
+    public event Action<int, OwnOrder> Handler;
 
     // **********************************************************************
 
-    protected readonly DataReader dr;
-
-    // **********************************************************************
-
-    protected QshStream(StreamType type, DataReader dr)
+    public OwnOrdersStream(DataReader dr)
+      : base(StreamType.OwnOrders, dr)
     {
-      this.Type = type;
-      this.dr = dr;
+      Security = new Security(dr.ReadString());
     }
 
     // **********************************************************************
 
-    public abstract void Read(bool push);
+    public override void Read(bool push)
+    {
+      long id = dr.ReadInt64();
+      int p = dr.ReadPackInt();
+      int q = dr.ReadPackInt();
+
+      if(push && Handler != null)
+      {
+        OwnOrder order;
+
+        if(p < 0)
+          order = new OwnOrder(id, -p);
+        else if(id < 0)
+          order = new OwnOrder(OwnOrderType.Stop, id, p, q);
+        else
+          order = new OwnOrder(OwnOrderType.Regular, id, p, q);
+
+        Handler(Security.Key, order);
+      }
+    }
 
     // **********************************************************************
   }

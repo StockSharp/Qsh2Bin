@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,57 +10,43 @@
 #endregion
 
 using System;
-using QScalp.Shared;
 
-namespace QScalp.History.Reader.V4
+namespace QScalp.History.Reader.V3
 {
-  sealed class StockStream : QshStream, IStockStream
+  sealed class OwnTradesStream : QshStream, IOwnTradesStream
   {
     // **********************************************************************
 
-    readonly RawQuotes rawQuotes;
-    int lastPrice;
+    DateTime baseDateTime;
+    int basePrice;
 
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, Quote[], Spread> Handler;
+    public event Action<int, OwnTradeReply> Handler;
 
     // **********************************************************************
 
-    public StockStream(DataReader dr)
-      : base(StreamType.Stock, dr)
+    public OwnTradesStream(DataReader dr)
+      : base(StreamType.OwnTrades, dr)
     {
       Security = new Security(dr.ReadString());
-      rawQuotes = new RawQuotes();
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      int n = (int)dr.ReadLeb128();
+      long orderId = dr.ReadInt64();
+      DateTime dateTime = dr.ReadDateTime(ref baseDateTime);
+      int price = dr.ReadRelative(ref basePrice);
+      int quantity = dr.ReadPackInt();
 
-      for(int i = 0; i < n; i++)
-      {
-        lastPrice += (int)dr.ReadLeb128();
-        int v = (int)dr.ReadLeb128();
-
-        if(v == 0)
-          rawQuotes.Remove(lastPrice);
-        else
-          rawQuotes[lastPrice] = v;
-      }
+      OwnTradeReply reply = new OwnTradeReply(OwnTradeSource.History,
+        dateTime, 0, orderId, price, quantity);
 
       if(push && Handler != null)
-      {
-        Quote[] quotes;
-        Spread spread;
-
-        rawQuotes.GetQuotes(out quotes, out spread);
-
-        Handler(Security.Key, quotes, spread);
-      }
+        Handler(Security.Key, reply);
     }
 
     // **********************************************************************

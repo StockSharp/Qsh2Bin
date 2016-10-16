@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -14,7 +14,7 @@ using QScalp.History.Internals;
 
 namespace QScalp.History.Reader.V4
 {
-  sealed class OrdersStream : QshStream, IOrdersStream
+  sealed class OwnOrdersStream : QshStream, IOwnOrdersStream
   {
     // **********************************************************************
 
@@ -23,8 +23,8 @@ namespace QScalp.History.Reader.V4
 
     // **********************************************************************
 
-    public OrdersStream(DataReader dr)
-      : base(StreamType.Orders, dr)
+    public OwnOrdersStream(DataReader dr)
+      : base(StreamType.OwnOrders, dr)
     {
       Security = new Security(dr.ReadString());
     }
@@ -53,7 +53,7 @@ namespace QScalp.History.Reader.V4
           type = OwnOrderType.None;
 
         order = new OwnOrder(type, dr.ReadLeb128(),
-          (int)dr.ReadLeb128(), (int)dr.ReadLeb128(), null);
+          (int)dr.ReadLeb128(), (int)dr.ReadLeb128());
       }
 
       if(push && Handler != null)

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -10,48 +10,57 @@
 #endregion
 
 using System;
-using QScalp.History.Internals;
+using QScalp.Shared;
 
 namespace QScalp.History.Reader.V4
 {
-  sealed class TradesStream : QshStream, ITradesStream
+  sealed class QuotesStream : QshStream, IQuotesStream
   {
     // **********************************************************************
 
-    long lastMilliseconds;
-    long lastTradeId;
-    long lastOrderId;
+    readonly RawQuotes rawQuotes;
     int lastPrice;
 
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, OwnTradeReply> Handler;
+    public event Action<int, Quote[], Spread> Handler;
 
     // **********************************************************************
 
-    public TradesStream(DataReader dr)
-      : base(StreamType.Trades, dr)
+    public QuotesStream(DataReader dr)
+      : base(StreamType.Quotes, dr)
     {
       Security = new Security(dr.ReadString());
+      rawQuotes = new RawQuotes();
     }
 
     // **********************************************************************
 
     public override void Read(bool push)
     {
-      lastMilliseconds = dr.ReadGrowing(lastMilliseconds);
+      int n = (int)dr.ReadLeb128();
 
-      lastTradeId += dr.ReadLeb128();
-      lastOrderId += dr.ReadLeb128();
-      lastPrice += (int)dr.ReadLeb128();
+      for(int i = 0; i < n; i++)
+      {
+        lastPrice += (int)dr.ReadLeb128();
+        int v = (int)dr.ReadLeb128();
 
-      int quantity = (int)dr.ReadLeb128();
+        if(v == 0)
+          rawQuotes.Remove(lastPrice);
+        else
+          rawQuotes[lastPrice] = v;
+      }
 
       if(push && Handler != null)
-        Handler(Security.Key, new OwnTradeReply(
-          OwnTradeSource.History, DateTimeHelper.FromMs(lastMilliseconds),
-          lastTradeId, lastOrderId, lastPrice, quantity));
+      {
+        Quote[] quotes;
+        Spread spread;
+
+        rawQuotes.GetQuotes(out quotes, out spread);
+
+        Handler(Security.Key, quotes, spread);
+      }
     }
 
     // **********************************************************************

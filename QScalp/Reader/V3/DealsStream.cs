@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2015 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -21,7 +21,7 @@ namespace QScalp.History.Reader.V3
     DateTime lastDateTime;
 
     int basePrice;
-    double lastPrice;
+    int lastPrice;
 
     int lastVolume;
 
@@ -57,7 +57,7 @@ namespace QScalp.History.Reader.V3
         d.DateTime = lastDateTime;
 
       if((flags & DealFlagsV3.Price) != 0)
-        d.Price = lastPrice = Security.GetPrice(dr.ReadRelative(ref basePrice));
+        d.Price = lastPrice = dr.ReadRelative(ref basePrice);
       else
         d.Price = lastPrice;
 

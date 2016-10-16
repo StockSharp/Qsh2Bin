@@ -9,52 +9,56 @@
 */
 #endregion
 
-using System.IO;
+using System;
+using QScalp.Shared;
 
-namespace QScalp.History.Internals
+namespace QScalp.History.Reader.V3
 {
-  static class ULeb128
+  sealed class QuotesStream : QshStream, IQuotesStream
   {
     // **********************************************************************
 
-    public const uint Max1BValue = 127;
-    public const uint Max2BValue = 16383;
-    public const uint Max3BValue = 2097151;
-    public const uint Max4BValue = 268435455;
+    public Security Security { get; private set; }
+    public event Action<int, Quote[], Spread> Handler;
+
+    readonly RawQuotes rawQuotes;
+
+    int basePrice;
 
     // **********************************************************************
 
-    public static void Write(Stream stream, uint value)
+    public QuotesStream(DataReader dr)
+      : base(StreamType.Quotes, dr)
     {
-      while(value > 127)
-      {
-        stream.WriteByte((byte)(value | 0x80));
-        value >>= 7;
-      }
-
-      stream.WriteByte((byte)value);
+      Security = new Security(dr.ReadString());
+      rawQuotes = new RawQuotes();
     }
 
     // **********************************************************************
 
-    public static uint Read(Stream stream)
+    public override void Read(bool push)
     {
-      uint value = 0;
-      int shift = 0;
+      int n = dr.ReadPackInt();
 
-      for(; ; )
+      for(int i = 0; i < n; i++)
       {
-        uint b = (uint)stream.ReadByte();
+        int p = dr.ReadRelative(ref basePrice);
+        int v = dr.ReadPackInt();
 
-        if(b == 0xffffffff)
-          throw new EndOfStreamException();
+        if(v == 0)
+          rawQuotes.Remove(p);
+        else
+          rawQuotes[p] = v;
+      }
 
-        value |= (b & 0x7f) << shift;
+      if(push && Handler != null)
+      {
+        Quote[] quotes;
+        Spread spread;
 
-        if((b & 0x80) == 0)
-          return value;
+        rawQuotes.GetQuotes(out quotes, out spread);
 
-        shift += 7;
+        Handler(Security.Key, quotes, spread);
       }
     }
 

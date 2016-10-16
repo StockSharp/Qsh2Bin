@@ -9,53 +9,52 @@
 */
 #endregion
 
-using System.IO;
+using System;
+using QScalp.History.Internals;
 
-namespace QScalp.History.Internals
+namespace QScalp.History.Writer
 {
-  static class ULeb128
+  sealed class OwnTradesStream
   {
     // **********************************************************************
 
-    public const uint Max1BValue = 127;
-    public const uint Max2BValue = 16383;
-    public const uint Max3BValue = 2097151;
-    public const uint Max4BValue = 268435455;
+    readonly DataWriter dw;
+    readonly int sid;
+
+    long lastMilliseconds;
+    long lastTradeId;
+    long lastOrderId;
+    int lastPrice;
 
     // **********************************************************************
 
-    public static void Write(Stream stream, uint value)
+    public OwnTradesStream(DataWriter dw, int sid, Security s)
     {
-      while(value > 127)
-      {
-        stream.WriteByte((byte)(value | 0x80));
-        value >>= 7;
-      }
+      this.dw = dw;
+      this.sid = sid;
 
-      stream.WriteByte((byte)value);
+      dw.Write((byte)StreamType.OwnTrades);
+      dw.Write(s.Entry);
     }
 
     // **********************************************************************
 
-    public static uint Read(Stream stream)
+    public void Write(DateTime dateTime, OwnTradeReply reply)
     {
-      uint value = 0;
-      int shift = 0;
+      dw.WriteRecHeader(sid, dateTime);
 
-      for(; ; )
-      {
-        uint b = (uint)stream.ReadByte();
+      dw.WriteGrowing(DateTimeHelper.ToMs(reply.DateTime), ref lastMilliseconds);
 
-        if(b == 0xffffffff)
-          throw new EndOfStreamException();
+      dw.WriteLeb128(reply.TradeId - lastTradeId);
+      lastTradeId = reply.TradeId;
 
-        value |= (b & 0x7f) << shift;
+      dw.WriteLeb128(reply.OrderId - lastOrderId);
+      lastOrderId = reply.OrderId;
 
-        if((b & 0x80) == 0)
-          return value;
+      dw.WriteLeb128(reply.Price - lastPrice);
+      lastPrice = reply.Price;
 
-        shift += 7;
-      }
+      dw.WriteLeb128(reply.Quantity);
     }
 
     // **********************************************************************
