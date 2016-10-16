@@ -240,7 +240,7 @@
 
 			_logManager.Application.AddInfoLog("Начата конвертация файла {0}.", fileName);
 
-			var securitiesStrings = securityLike.Split(',');
+			var securitiesStrings = securityLike.Split(",");
 
 			const int maxBufCount = 1000;
 
@@ -258,13 +258,30 @@
 					var securityId = security.ToSecurityId();
 					var lastTransactionId = 0L;
 
-					if (!securityLike.IsEmptyOrWhiteSpace())
+					if (securitiesStrings.Length > 0)
 					{
-						var streamDontContainsSecuritiesFromMask = securitiesStrings.All(
-							(sec) => !securityId.SecurityCode.ContainsIgnoreCase(sec));
+						var secCode = securityId.SecurityCode;
 
+						var streamContainsSecurityFromMask = securitiesStrings.All(mask =>
+						{
+							var isEndMulti = mask.EndsWith("*");
+							var isStartMulti = mask.StartsWith("*");
 
-						if (streamDontContainsSecuritiesFromMask) continue;
+							if (isEndMulti)
+							{
+								if (isStartMulti)
+									return secCode.ContainsIgnoreCase(mask);
+								else
+									return secCode.StartsWith(mask, StringComparison.InvariantCultureIgnoreCase);
+							}
+							else if (isStartMulti)
+								return secCode.EndsWith(mask, StringComparison.InvariantCultureIgnoreCase);
+							else
+								return secCode.CompareIgnoreCase(mask);
+						});
+
+						if (!streamContainsSecurityFromMask)
+							continue;
 					}
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
@@ -557,7 +574,7 @@
 			TryEnable();
 		}
 
-		private void OnFolderChange(string folder)
+		private void OnFolderChanged(string folder)
 		{
 			TryEnable();
 		}

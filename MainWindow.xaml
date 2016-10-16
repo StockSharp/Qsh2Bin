@@ -24,10 +24,10 @@
 			</Grid.RowDefinitions>
 			
 			<Label Grid.Column="0" Grid.Row="0" Margin="2.5">QSH:</Label>
-			<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChanged="OnFolderChange" Margin="2.5"/>
+			<ex:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChanged="OnFolderChanged" Margin="2.5"/>
 
 			<Label Grid.Column="0" Grid.Row="1" Margin="2.5">S#:</Label>
-			<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="1" FolderChanged="OnFolderChange" Margin="2.5"/>
+			<ex:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="1" FolderChanged="OnFolderChanged" Margin="2.5"/>
 		</Grid>
 
 		<Grid Grid.Row="1">
@@ -46,11 +46,11 @@
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 					<Label Grid.Column="0" Grid.Row="0" Margin="2.5">Board code:</Label>
-					<xaml:ExchangeBoardComboBox x:Name="Board" Grid.Column="1" Grid.Row="0" SelectionChanged="Board_OnSelectionChanged" Width="70" HorizontalAlignment="Left" Margin="2.5"/>
+					<xaml:ExchangeBoardComboBox x:Name="Board" Grid.Column="1" Grid.Row="0" SelectionChanged="Board_OnSelectionChanged" MinWidth="100" Margin="2.5"/>
 
 					<Label Grid.Column="0" Grid.Row="1" Margin="2.5">Security Code Masks:</Label>
-					<TextBox x:Name="SecurityLike" Grid.Column="1" Grid.Row="1" Width="150" HorizontalAlignment="Left" Margin="2.5"
-							 ToolTip="Masks, separated by commas. For examle 'BR,CHMF-9.14,LKOH'. 'BR' mask will leads to conversion all found securities, contains BR sumbols in code, like 'BR','SBRF','VTBR' and etc."/>
+					<TextBox x:Name="SecurityLike" Grid.Column="1" Grid.Row="1" Margin="2.5"
+							 ToolTip="Masks, separated by commas. For examle '*BR*,CHMF-9.14,LKOH'. '*BR*' mask will leads to conversion all found securities, contains BR sumbols in code, like 'BR','SBRF','VTBR' and etc."/>
 				</Grid>
 			</GroupBox>
 			<GroupBox Grid.Column="1" Header="Convertion settings" Padding="5" Margin="2.5">
