@@ -211,21 +211,13 @@
 			if (!_isStarted)
 				return;
 
+			var files = Directory.GetFiles(path, "*.qsh");
+
 			if (!multithread)
-				Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
+				files.ForEach(f => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
 			else
 			{
-				var tasks = new List<Task>();
-				Directory.GetFiles(path, "*.qsh").ForEach(f =>
-				{
-					var task = new Task(() => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
-					tasks.Add(task);
-					task.Start();
-				});
-
-				Task.WaitAll(tasks.ToArray());
-				tasks.ForEach(t => t.Dispose());
-				tasks.Clear();
+				Parallel.ForEach(files, file => ConvertFile(file, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
 			}
 
 			//пишем имена сконвертированных в деректории файлов qsh, в файл 
