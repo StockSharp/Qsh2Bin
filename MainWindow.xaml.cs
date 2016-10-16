@@ -37,6 +37,7 @@
 			public StorageFormats Format { get; set; }
 			public string Board { get; set; }
 			public string SecurityLike { get; set; }
+			public bool MultiThread { get; set; }
 		}
 
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
@@ -44,10 +45,13 @@
 
 		private bool _isStarted;
 
+		private DateTimeOffset _startConvertTime;
+
 		private static readonly string _settingsFile = Path.Combine("Settings", "settings.xml");
 		private static readonly string _convertedFilesFile = Path.Combine("Settings", "converted_files.txt");
 
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		private readonly HashSet<string> _convertedPerTaskPoolFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 
 		public MainWindow()
 		{
@@ -74,6 +78,7 @@
 					StockSharpFolder.Folder = settings.StockSharpFolder;
 					Format.SetSelectedValue<StorageFormats>(settings.Format);
 					SecurityLike.Text = settings.SecurityLike;
+					MultiThread.IsChecked = settings.MultiThread;
 					Board.SelectedBoard =
 						settings.Board.IsEmpty()
 							? ExchangeBoard.Forts
@@ -105,7 +110,8 @@
 				StockSharpFolder = StockSharpFolder.Folder,
 				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary,
 				SecurityLike = SecurityLike.Text,
-				Board = Board.SelectedBoard?.Code
+				Board = Board.SelectedBoard?.Code,
+				MultiThread = MultiThread.IsChecked != null && MultiThread.IsChecked.Value
 			};
 
 			try
@@ -122,7 +128,7 @@
 
 		private void LockControls(bool isEnabled)
 		{
-			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = isEnabled;
+			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = MultiThread.IsEnabled = isEnabled;
 		}
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
@@ -155,7 +161,9 @@
 					Convert.IsEnabled = true;
 				});
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike);
+				_startConvertTime = DateTimeOffset.Now;
+
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread);
 			})
 			.ContinueWith(t =>
 			{
@@ -177,21 +185,47 @@
 					return;
 				}
 
+				var text = "Конвертация {0} {1}.".Put(_isStarted ? "выполнена за" : "остановлена через", 
+					(DateTimeOffset.Now - _startConvertTime).ToString("g"));
+
+				_logManager.Application.AddInfoLog(text);
+
 				new MessageBoxBuilder()
-					.Text("Конвертация {0}.".Put(_isStarted ? "выполнена" : "остановлена"))
+					.Text(text)
 					.Owner(this)
 					.Show();
+
+				_isStarted = false;
 
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread)
 		{
 			if (!_isStarted)
 				return;
 
-			Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike));
+			if (!multithread)
+				Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
+			else
+			{
+				var tasks = new List<Task>();
+				Directory.GetFiles(path, "*.qsh").ForEach(f =>
+				{
+					var task = new Task(() => ConvertFile(f, registry, format, board, securityLike));
+					tasks.Add(task);
+					task.Start();
+				});
+
+				Task.WaitAll(tasks.ToArray());
+				tasks.ForEach(t => t.Dispose());
+				tasks.Clear();
+			}
+			//пишем имена сконвертированных в деректории файлов qsh, в файл 
+			File.AppendAllLines(_convertedFilesFile, _convertedPerTaskPoolFiles);
+			_convertedPerTaskPoolFiles.Clear();
+
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread));
 		}
 
 		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
@@ -204,9 +238,9 @@
 			if (_convertedFiles.Contains(fileNameKey))
 				return;
 
-			_logManager.Application.AddInfoLog("Конвертация файла {0}.", fileName);
+			_logManager.Application.AddInfoLog("Начата конвертация файла {0}.", fileName);
 
-			var isExact = !securityLike.EndsWith("*");
+			var securitiesStrings = securityLike.Split(',');
 
 			const int maxBufCount = 1000;
 
@@ -224,11 +258,14 @@
 					var securityId = security.ToSecurityId();
 					var lastTransactionId = 0L;
 
-					if (!securityLike.IsEmpty() &&
-						(isExact
-							? !securityId.SecurityCode.CompareIgnoreCase(securityLike)
-							: !securityId.SecurityCode.ContainsIgnoreCase(securityLike)))
-						continue;
+					if (!securityLike.IsEmptyOrWhiteSpace())
+					{
+						var streamDontContainsSecuritiesFromMask = securitiesStrings.All(
+							(sec) => !securityId.SecurityCode.ContainsIgnoreCase(sec));
+
+
+						if (streamDontContainsSecuritiesFromMask) continue;
+					}
 
 					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
@@ -292,11 +329,12 @@
 							{
 								secData.Item2.Add(new ExecutionMessage
 								{
+									HasTradeInfo = true,
 									ExecutionType = ExecutionTypes.Tick,
 									SecurityId = securityId,
 									OpenInterest = deal.OI == 0 ? (long?)null : deal.OI,
 									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
-									Volume = deal.Volume,
+									TradeVolume = deal.Volume,
 									TradeId = deal.Id == 0 ? (long?)null : deal.Id,
 									TradePrice = (decimal)deal.Price,
 									OriginSide = 
@@ -332,7 +370,7 @@
 									OrderId = ol.OrderId,
 									OrderPrice = priceStep * ol.Price,
 									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
-									Volume = ol.Amount,
+									OrderVolume = ol.Amount,
 									Balance = ol.AmountRest,
 									TradeId = ol.DealId == 0 ? (long?)null : ol.DealId,
 									TradePrice = ol.DealPrice == 0 ? (decimal?)null : priceStep * ol.DealPrice,
@@ -406,7 +444,7 @@
 									status |= 0x1000;
 								}
 
-								msg.OrderStatus = (OrderStatus)status;
+								msg.OrderStatus = status;
 
 								secData.Item4.Add(msg);
 
@@ -489,9 +527,12 @@
 
 			if (data.Count > 0)
 			{
-				File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
+				//File.AppendAllLines(_convertedFilesFile, new[] { fileNameKey });
 				_convertedFiles.Add(fileNameKey);
+				_convertedPerTaskPoolFiles.Add(fileNameKey);
 			}
+
+			_logManager.Application.AddInfoLog("Завершена конвертация файла {0}.", fileName);
 		}
 
 		private Security GetSecurity(QScalp.Security security, ExchangeBoard board)
