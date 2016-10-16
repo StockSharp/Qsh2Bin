@@ -3,4 +3,4 @@
 
 На текущий момент данные доступны на сайте брокеров [ITInvest](http://www.itinvest.ru/software/spo/qscalp/history/) и Церих ftp://athistory.zerich.com/.
 
-Инструкция использования и обсуждение утилиты доступно на [форуме](http://stocksharp.com/forum/yaf_postst3841_Konviertatsiia-istorichieskikh-failov-QScalp-v-format-StockSharp.aspx?=).
+Инструкция использования и обсуждение утилиты доступно на [форуме](http://stocksharp.ru/articles/322/konvertatsiya-istoricheskih-failov-qscalp-v-format-stocksharp/).
