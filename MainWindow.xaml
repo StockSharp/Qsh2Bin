@@ -3,8 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ex="clr-namespace:Ecng.Xaml;assembly=Ecng.Xaml"
         xmlns:xaml="http://schemas.stocksharp.com/xaml"
+        xmlns:converters="clr-namespace:Ecng.Xaml.Converters;assembly=Ecng.Xaml"
         Title="QSH -> StockSharp"
 		Height="530" Width="625" MinHeight="300" MinWidth="500">
+	<Window.Resources>
+		<converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+	</Window.Resources>
 	<Grid Margin="5">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
@@ -58,6 +62,7 @@
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto"/>
 						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="1.5*"/>
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
@@ -69,6 +74,7 @@
 
 					<CheckBox x:Name="MultiThread" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="2.5">Multi thread convertion</CheckBox>
 
+					<CheckBox x:Name="OrderLog2OrderBook" IsEnabled="{Binding ElementName=MultiThread, Path=IsChecked, Converter={StaticResource InverseBooleanConverter}}" Grid.Column="2" Grid.Row="0" VerticalAlignment="Center" Margin="2.5">OL -> Стакан</CheckBox>
 				</Grid>
 			</GroupBox>
 		</Grid>

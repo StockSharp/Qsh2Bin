@@ -24,6 +24,7 @@
 	using StockSharp.BusinessEntities;
 	using StockSharp.Logging;
 	using StockSharp.Messages;
+	using StockSharp.Plaza;
 	using StockSharp.Xaml;
 
 	public partial class MainWindow
@@ -36,6 +37,8 @@
 			public string Board { get; set; }
 			public string SecurityLike { get; set; }
 			public bool MultiThread { get; set; }
+			public bool OrderLog2OrderBook { get; set; }
+			public int OrderBookMaxDepth { get; set; } = 5;
 		}
 
 		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
@@ -66,7 +69,7 @@
 			Board.Boards.AddRange(ExchangeBoard.EnumerateExchangeBoards().Where(b => b.Exchange == Exchange.Moex));
             Board.SelectedBoard = ExchangeBoard.Forts;
 
-            try
+			try
 			{
 				if (File.Exists(_settingsFile))
 				{
@@ -77,6 +80,8 @@
 					Format.SetSelectedValue<StorageFormats>(settings.Format);
 					SecurityLike.Text = settings.SecurityLike;
 					MultiThread.IsChecked = settings.MultiThread;
+					OrderLog2OrderBook.IsChecked = settings.OrderLog2OrderBook;
+
 					Board.SelectedBoard =
 						settings.Board.IsEmpty()
 							? ExchangeBoard.Forts
@@ -109,7 +114,8 @@
 				Format = Format.GetSelectedValue<StorageFormats>() ?? StorageFormats.Binary,
 				SecurityLike = SecurityLike.Text,
 				Board = Board.SelectedBoard?.Code,
-				MultiThread = MultiThread.IsChecked == true
+				MultiThread = MultiThread.IsChecked == true,
+				OrderLog2OrderBook = OrderLog2OrderBook.IsEnabled && OrderLog2OrderBook.IsChecked == true,
 			};
 
 			try
@@ -148,6 +154,8 @@
 			var settings = SaveSettings();
 			var board = Board.SelectedBoard;
 
+			var orderLog2OrderBookBuilders = settings.OrderLog2OrderBook ? new Dictionary<SecurityId, IOrderLogMarketDepthBuilder>() : null;
+
 			Task.Factory.StartNew(() =>
 			{
 				var registry = new StorageRegistry();
@@ -161,7 +169,7 @@
 
 				_startConvertTime = DateTimeOffset.Now;
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread, orderLog2OrderBookBuilders, settings.OrderBookMaxDepth);
 			})
 			.ContinueWith(t =>
 			{
@@ -198,19 +206,19 @@
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth)
 		{
 			if (!_isStarted)
 				return;
 
 			if (!multithread)
-				Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike));
+				Directory.GetFiles(path, "*.qsh").ForEach(f => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
 			else
 			{
 				var tasks = new List<Task>();
 				Directory.GetFiles(path, "*.qsh").ForEach(f =>
 				{
-					var task = new Task(() => ConvertFile(f, registry, format, board, securityLike));
+					var task = new Task(() => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
 					tasks.Add(task);
 					task.Start();
 				});
@@ -219,11 +227,12 @@
 				tasks.ForEach(t => t.Dispose());
 				tasks.Clear();
 			}
+
 			//пишем имена сконвертированных в деректории файлов qsh, в файл 
 			File.AppendAllLines(_convertedFilesFile, _convertedPerTaskPoolFiles);
 			_convertedPerTaskPoolFiles.Clear();
 
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread));
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread, orderLog2OrderBookBuilders, orderBookMaxDepth));
 		}
 
 		private void TryFlushData<TMessage>(IStorageRegistry registry, BusinessEntities.Security security, StorageFormats format, object arg, List<TMessage> messages, QshReader reader)
@@ -240,7 +249,7 @@
 			messages.Clear();
 		}
 
-		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike)
+		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth)
 		{
 			if (!_isStarted)
 				return;
@@ -268,6 +277,7 @@
 					var priceStep = security.PriceStep ?? 1;
 					var securityId = security.ToSecurityId();
 					var lastTransactionId = 0L;
+					var builder = orderLog2OrderBookBuilders?.SafeAdd(securityId, key => new PlazaOrderLogMarketDepthBuilder(key));
 
 					if (securitiesStrings.Length > 0)
 					{
@@ -336,6 +346,7 @@
 
 								var md = new QuoteChangeMessage
 								{
+									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 									SecurityId = securityId,
 									ServerTime = currentDate.ApplyTimeZone(TimeHelper.Moscow),
 									Bids = quotes2.Where(q => q.Side == Sides.Buy),
@@ -360,6 +371,7 @@
 							{
 								secData.Item2.Add(new ExecutionMessage
 								{
+									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 									HasTradeInfo = true,
 									ExecutionType = ExecutionTypes.Tick,
 									SecurityId = securityId,
@@ -391,6 +403,7 @@
 
 								var msg = new ExecutionMessage
 								{
+									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 									ExecutionType = ExecutionTypes.OrderLog,
 									SecurityId = securityId,
 									OpenInterest = ol.OI == 0 ? (long?)null : ol.OI,
@@ -473,9 +486,43 @@
 
 								msg.OrderStatus = status;
 
-								secData.Item4.Add(msg);
+								if (builder == null)
+								{
+									secData.Item4.Add(msg);
 
-								TryFlushData(registry, security, format, ExecutionTypes.OrderLog, secData.Item4, reader);
+									TryFlushData(registry, security, format, ExecutionTypes.OrderLog, secData.Item4, reader);
+								}
+								else
+								{
+									//if (builder.Depth.Bids.Any() || builder.Depth.Asks.Any() || msg.ServerTime.TimeOfDay >= new TimeSpan(0, 18, 45, 00, 1))
+									{
+										bool updated;
+
+										try
+										{
+											updated = builder.Update(msg);
+										}
+										catch
+										{
+											updated = false;
+										}
+
+										if (updated)
+										{
+											secData.Item1.Add(new QuoteChangeMessage
+											{
+												SecurityId = securityId,
+												ServerTime = builder.Depth.ServerTime,
+												Bids = builder.Depth.Bids.Take(orderBookMaxDepth).ToArray(),
+												Asks = builder.Depth.Asks.Take(orderBookMaxDepth).ToArray(),
+												IsSorted = builder.Depth.IsSorted,
+												LocalTime = builder.Depth.LocalTime,
+											});
+
+											TryFlushData(registry, security, format, null, secData.Item1, reader);
+										}
+									}
+								}
 							};
 							break;
 						}
@@ -485,6 +532,7 @@
 							{
 								secData.Item3.Add(new Level1ChangeMessage
 								{
+									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 									SecurityId = securityId,
 									ServerTime = info.DateTime.ApplyTimeZone(TimeHelper.Moscow),
 								}
