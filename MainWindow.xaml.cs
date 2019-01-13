@@ -48,8 +48,10 @@
 
 		private DateTimeOffset _startConvertTime;
 
-		private static readonly string _settingsFile = Path.Combine("Settings", "settings.xml");
-		private static readonly string _convertedFilesFile = Path.Combine("Settings", "converted_files.txt");
+		private const string _settingsDir = "Settings";
+
+		private static readonly string _settingsFile = Path.Combine(_settingsDir, "settings.xml");
+		private static readonly string _convertedFilesFile = Path.Combine(_settingsDir, "converted_files.txt");
 
 		private readonly HashSet<string> _convertedFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
 		private readonly HashSet<string> _convertedPerTaskPoolFiles = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -58,7 +60,9 @@
 		{
 			InitializeComponent();
 
-			Directory.CreateDirectory("Settings");
+			Directory.CreateDirectory(_settingsDir);
+
+			_logManager.Application.LogLevel = LogLevels.Verbose;
 
 			_logManager.Listeners.Add(new GuiLogListener(LogControl));
 			_logManager.Listeners.Add(new FileLogListener { LogDirectory = "Logs", SeparateByDates = SeparateByDateModes.FileName });
@@ -132,7 +136,7 @@
 
 		private void LockControls(bool isEnabled)
 		{
-			QshFolder.IsEnabled = StockSharpFolder.IsEnabled = Format.IsEnabled = Board.IsEnabled = SecurityLike.IsEnabled = MultiThread.IsEnabled = isEnabled;
+			FoldersGrid.IsEnabled = StorageSettingsBox.IsEnabled = SecSettingsBox.IsEnabled = isEnabled;
 		}
 
 		private void Convert_OnClick(object sender, RoutedEventArgs e)
@@ -235,7 +239,7 @@
 			if (messages.Count <= maxBufCount)
 				return;
 
-			_logManager.Application.AddInfoLog("Файл прочитан на {1}%.", messages.Count, (reader.FilePosition * 100) / reader.FileSize);
+			_logManager.Application.AddDebugLog("Файл прочитан на {1}%.", messages.Count, (reader.FilePosition * 100) / reader.FileSize);
 
 			registry.GetStorage(security, typeof(TMessage), arg, null, format).Save(messages);
 			messages.Clear();
@@ -309,7 +313,7 @@
 					{
 						case StreamType.Quotes:
 						{
-							((IQuotesStream)stream).Handler += (key, quotes, spread) =>
+							((IQuotesStream)stream).Handler += quotes =>
 							{
 								var quotes2 = quotes.Select(q =>
 								{
@@ -384,7 +388,7 @@
 						}
 						case StreamType.OrdLog:
 						{
-							((IOrdLogStream)stream).Handler += (key, ol) =>
+							((IOrdLogStream)stream).Handler += ol =>
 							{
 								var currTransactionId = ol.DateTime.Ticks;
 
@@ -520,20 +524,30 @@
 						}
 						case StreamType.AuxInfo:
 						{
-							((IAuxInfoStream)stream).Handler += (key, info) =>
+							((IAuxInfoStream)stream).Handler += info =>
 							{
-								secData.Item3.Add(new Level1ChangeMessage
-								{
-									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
-									SecurityId = securityId,
-									ServerTime = info.DateTime.ApplyTimeZone(TimeHelper.Moscow),
-								}
-								.TryAdd(Level1Fields.LastTradePrice, priceStep * info.Price)
-								.TryAdd(Level1Fields.BidsVolume, (decimal)info.BidTotal)
-								.TryAdd(Level1Fields.AsksVolume, (decimal)info.AskTotal)
-								.TryAdd(Level1Fields.HighPrice, priceStep * info.HiLimit)
-								.TryAdd(Level1Fields.LowPrice, priceStep * info.LoLimit)
-								.TryAdd(Level1Fields.OpenInterest, (decimal)info.OI));
+								var time = info.DateTime;
+
+								if (time.IsDefault())
+									time = qr.CurrentDateTime;
+
+								var l1Msg = new Level1ChangeMessage
+					            {
+						            LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+						            SecurityId = securityId,
+						            ServerTime = time.ApplyTimeZone(TimeHelper.Moscow),
+					            }
+					            .TryAdd(Level1Fields.LastTradePrice, priceStep * info.Price)
+					            .TryAdd(Level1Fields.BidsVolume, (decimal)info.BidTotal)
+					            .TryAdd(Level1Fields.AsksVolume, (decimal)info.AskTotal)
+					            .TryAdd(Level1Fields.HighPrice, priceStep * info.HiLimit)
+					            .TryAdd(Level1Fields.LowPrice, priceStep * info.LoLimit)
+					            .TryAdd(Level1Fields.OpenInterest, (decimal)info.OI);
+
+								if (l1Msg.Changes.Count == 0)
+									return;
+
+								secData.Item3.Add(l1Msg);
 
 								TryFlushData(registry, security, format, null, secData.Item3, reader);
 							};
@@ -602,7 +616,7 @@
 				Code = security.Ticker,
 				Board = board,
 				PriceStep = (decimal)security.Step,
-				Decimals = security.Precision
+				//Decimals = security.Precision
 			};
 		}
 

@@ -1,4 +1,4 @@
-﻿#region Copyright (c) 2011-2016 Николай Морошкин, http://www.moroshkin.com/
+﻿#region Copyright (c) 2011-2018 Николай Морошкин, http://www.moroshkin.com/
 /*
 
   Настоящий исходный код является частью приложения «Торговый привод QScalp»
@@ -21,17 +21,12 @@ namespace QScalp.History.Reader.V4
   {
     // **********************************************************************
 
-    readonly TimeSpan quotesPushInterval = new TimeSpan(0, 0, 0, 0, 5);
-
-    // **********************************************************************
-
     readonly RawQuotes rawQuotes;
 
-    Action<int, Quote[], Spread> quotesHandler;
+    Action<Quote[]> quotesHandler;
     Action<Deal> dealHandler;
-    Action<int, AuxInfo> auxInfoHandler;
+    Action<AuxInfo> auxInfoHandler;
 
-    DateTime lastQuotesPush;
     long lastPushedDealId;
 
     // **********************************************************************
@@ -51,11 +46,11 @@ namespace QScalp.History.Reader.V4
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, OrdLogEntry> Handler;
+    public event Action<OrdLogEntry> Handler;
 
     // **********************************************************************
 
-    event Action<int, Quote[], Spread> IQuotesStream.Handler
+    event Action<Quote[]> IQuotesStream.Handler
     {
       add { quotesHandler += value; }
       remove { quotesHandler -= value; }
@@ -67,7 +62,7 @@ namespace QScalp.History.Reader.V4
       remove { dealHandler -= value; }
     }
 
-    event Action<int, AuxInfo> IAuxInfoStream.Handler
+    event Action<AuxInfo> IAuxInfoStream.Handler
     {
       add { auxInfoHandler += value; }
       remove { auxInfoHandler -= value; }
@@ -132,7 +127,7 @@ namespace QScalp.History.Reader.V4
           amountRest = lastAmountRest;
 
         if((flags & OrdLogEntryFlags.DealId) != 0)
-          dealId = lastDealId = (int)dr.ReadGrowing(lastDealId);
+          dealId = lastDealId = dr.ReadGrowing(lastDealId);
         else
           dealId = lastDealId;
 
@@ -157,13 +152,13 @@ namespace QScalp.History.Reader.V4
       // ------------------------------------------------------------
 
       if(Handler != null && push)
-        Handler(Security.Key, new OrdLogEntry(
+        Handler(new OrdLogEntry(
           ordLogFlags, dateTime, orderId, lastPrice,
           lastAmount, amountRest, dealId, dealPrice, oi));
 
       // ------------------------------------------------------------
 
-      if((ordLogFlags & OrdLogFlags.SessIdChanged) != 0)
+      if((ordLogFlags & OrdLogFlags.FlowStart) != 0)
         rawQuotes.Clear();
 
       if(!(isBuy ^ isSell)
@@ -194,38 +189,27 @@ namespace QScalp.History.Reader.V4
       {
         if((ordLogFlags & OrdLogFlags.EndOfTransaction) != 0)
         {
-          DateTime now = DateTime.UtcNow;
+          // В большинстве случаев нет необходимости делать все,
+          // что в этом блоке, на каждый тик. Целесообразнее
+          // отправлять эти данные по таймеру, раз в 5-15 мс.
 
-          if(now - lastQuotesPush > quotesPushInterval)
+          if(quotesHandler != null)
+            quotesHandler(rawQuotes.GetQuotes());
+
+          if(auxInfoHandler != null)
           {
-            lastQuotesPush = now;
+            int askTotal = 0;
+            int bidTotal = 0;
 
-            if(quotesHandler != null)
-            {
-              Quote[] quotes;
-              Spread spread;
+            foreach(KeyValuePair<int, int> kvp in rawQuotes)
+              if(kvp.Value > 0)
+                askTotal += kvp.Value;
+              else
+                bidTotal -= kvp.Value;
 
-              rawQuotes.GetQuotes(out quotes, out spread);
-
-              if(spread.Ask > 0 && spread.Bid > 0)
-                quotesHandler(Security.Key, quotes, spread);
-            }
-
-            if(auxInfoHandler != null)
-            {
-              int askTotal = 0;
-              int bidTotal = 0;
-
-              foreach(KeyValuePair<int, int> kvp in rawQuotes)
-                if(kvp.Value > 0)
-                  askTotal += kvp.Value;
-                else
-                  bidTotal -= kvp.Value;
-
-              auxInfoHandler(Security.Key, new AuxInfo(
-                dateTime, lastDealPrice, askTotal,
-                bidTotal, lastOI, 0, 0, 0, 0, null));
-            }
+            auxInfoHandler(new AuxInfo(
+              dateTime, lastDealPrice, askTotal,
+              bidTotal, lastOI, 0, 0, 0, 0, null));
           }
         }
 
@@ -234,7 +218,6 @@ namespace QScalp.History.Reader.V4
           if(dealHandler != null)
             dealHandler(new Deal()
             {
-              SecKey = Security.Key,
               Type = isSell ? DealType.Sell : DealType.Buy,
               Id = dealId,
               DateTime = dateTime,

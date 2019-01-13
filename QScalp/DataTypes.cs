@@ -20,7 +20,6 @@ namespace QScalp
   enum OwnOrderType { None, Regular, Stop }
   enum OwnTradeSource { Unknown, Real, Emulator, Manual, History }
   enum MessageType { None, Info, Warning, Error }
-  enum TraderReplyType { Acceptance, Rejection, OrderUpdate, OwnTrade, StopOrder }
 
   // ************************************************************************
 
@@ -40,30 +39,15 @@ namespace QScalp
 
   // ************************************************************************
 
-  public struct Spread
-  {
-    public readonly int Ask;
-    public readonly int Bid;
-
-    public Spread(int ask, int bid)
-    {
-      this.Ask = ask;
-      this.Bid = bid;
-    }
-  }
-
-  // ************************************************************************
-
   sealed class Deal
   {
-    public int SecKey;
+    public DateTime DateTime;
     public long Id;
     public long OrderId;
+    public DealType Type;
     public int Price;
     public int Volume;
-    public DealType Type;
     public int OI;
-    public DateTime DateTime;
   }
 
   // ************************************************************************
@@ -95,9 +79,8 @@ namespace QScalp
 
   // ************************************************************************
 
-  sealed class OwnTradeReply
+  sealed class OwnTrade
   {
-    public readonly TraderReplyType Type;
     public readonly OwnTradeSource Source;
     public readonly DateTime DateTime;
     public readonly long TradeId;
@@ -105,11 +88,9 @@ namespace QScalp
     public readonly int Price;
     public readonly int Quantity;
 
-    public OwnTradeReply(OwnTradeSource source, DateTime dateTime,
+    public OwnTrade(OwnTradeSource source, DateTime dateTime,
       long tradeId, long orderId, int price, int quantity)
     {
-      this.Type = TraderReplyType.OwnTrade;
-
       this.Source = source;
       this.DateTime = dateTime;
       this.TradeId = tradeId;
@@ -137,7 +118,7 @@ namespace QScalp
 
   // ************************************************************************
 
-  class AuxInfo
+  sealed class AuxInfo
   {
     public readonly DateTime DateTime;
     public readonly int Price;
@@ -178,13 +159,15 @@ namespace QScalp
   enum OrdLogFlags
   {
     NonZeroReplAct = 1 << 0,
-    SessIdChanged = 1 << 1,
+    FlowStart = 1 << 1,
 
     Add = 1 << 2,
     Fill = 1 << 3,
 
     Buy = 1 << 4,
     Sell = 1 << 5,
+
+    Snapshot = 1 << 6,
 
     Quote = 1 << 7, // Котировочная
     Counter = 1 << 8, // Встречная
@@ -201,7 +184,7 @@ namespace QScalp
 
   // ************************************************************************
 
-  class OrdLogEntry
+  sealed class OrdLogEntry
   {
     public readonly OrdLogFlags Flags;
 

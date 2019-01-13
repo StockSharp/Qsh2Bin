@@ -24,7 +24,7 @@ namespace QScalp.History.Reader.V4
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, Quote[], Spread> Handler;
+    public event Action<Quote[]> Handler;
 
     // **********************************************************************
 
@@ -53,14 +53,7 @@ namespace QScalp.History.Reader.V4
       }
 
       if(push && Handler != null)
-      {
-        Quote[] quotes;
-        Spread spread;
-
-        rawQuotes.GetQuotes(out quotes, out spread);
-
-        Handler(Security.Key, quotes, spread);
-      }
+        Handler(rawQuotes.GetQuotes());
     }
 
     // **********************************************************************

@@ -26,7 +26,7 @@ namespace QScalp.History.Reader.V4
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, OwnTradeReply> Handler;
+    public event Action<OwnTrade> Handler;
 
     // **********************************************************************
 
@@ -49,7 +49,7 @@ namespace QScalp.History.Reader.V4
       int quantity = (int)dr.ReadLeb128();
 
       if(push && Handler != null)
-        Handler(Security.Key, new OwnTradeReply(
+        Handler(new OwnTrade(
           OwnTradeSource.History, DateTimeHelper.FromMs(lastMilliseconds),
           lastTradeId, lastOrderId, lastPrice, quantity));
     }

@@ -4,3 +4,5 @@
 /*.suo
 *.suo
 /packages/
+/TestData/
+/.vs/

@@ -19,7 +19,7 @@ namespace QScalp.History.Reader.V4
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, OwnOrder> Handler;
+    public event Action<OwnOrder> Handler;
 
     // **********************************************************************
 
@@ -57,7 +57,7 @@ namespace QScalp.History.Reader.V4
       }
 
       if(push && Handler != null)
-        Handler(Security.Key, order);
+        Handler(order);
     }
 
     // **********************************************************************

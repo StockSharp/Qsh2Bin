@@ -31,7 +31,7 @@ namespace QScalp.History.Reader.V4
     // **********************************************************************
 
     public Security Security { get; private set; }
-    public event Action<int, AuxInfo> Handler;
+    public event Action<AuxInfo> Handler;
 
     // **********************************************************************
 
@@ -83,7 +83,7 @@ namespace QScalp.History.Reader.V4
       // ------------------------------------------------------------
 
       if(push && Handler != null)
-        Handler(Security.Key, new AuxInfo(
+        Handler(new AuxInfo(
           DateTimeHelper.FromMs(lastMilliseconds),
           lastPrice, lastAskTotal, lastBidTotal,
           lastOI, lastHiLimit, lastLoLimit,

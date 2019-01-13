@@ -18,13 +18,13 @@ namespace QScalp.History.Reader
   interface IQshStream { StreamType Type { get; } }
   interface ISecurityStream : IQshStream { Security Security { get; } }
 
-  interface IQuotesStream : ISecurityStream { event Action<int, Quote[], Spread> Handler;  }
+  interface IQuotesStream : ISecurityStream { event Action<Quote[]> Handler;  }
   interface IDealsStream : ISecurityStream { event Action<Deal> Handler;  }
-  interface IOwnOrdersStream : ISecurityStream { event Action<int, OwnOrder> Handler;  }
-  interface IOwnTradesStream : ISecurityStream { event Action<int, OwnTradeReply> Handler;  }
+  interface IOwnOrdersStream : ISecurityStream { event Action<OwnOrder> Handler;  }
+  interface IOwnTradesStream : ISecurityStream { event Action<OwnTrade> Handler;  }
   interface IMessagesStream : IQshStream { event Action<Message> Handler;  }
-  interface IAuxInfoStream : ISecurityStream { event Action<int, AuxInfo> Handler; }
-  interface IOrdLogStream : ISecurityStream { event Action<int, OrdLogEntry> Handler; }
+  interface IAuxInfoStream : ISecurityStream { event Action<AuxInfo> Handler; }
+  interface IOrdLogStream : ISecurityStream { event Action<OrdLogEntry> Handler; }
 
   // ************************************************************************
 }

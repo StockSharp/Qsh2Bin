@@ -22,17 +22,29 @@ namespace QScalp.History.Reader
 
     public static QshReader Open(string path)
     {
-      FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-      Stream ds = QshFile.GetDataStream(fs);
-      int version = ds.ReadByte();
+      FileStream fs = null;
 
-      switch(version)
+      try
       {
-        case 3: return new V3.QshReaderImpl(fs, ds);
-        case 4: return new V4.QshReaderImpl(fs, ds);
+        fs = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-        default:
-          throw new FormatException("Неподдерживаемая версия файла (" + version + ")");
+        Stream ds = QshFile.GetDataStream(fs);
+        int version = ds.ReadByte();
+
+        switch(version)
+        {
+          case 4: return new V4.QshReaderImpl(fs, ds);
+
+          default:
+            throw new FormatException("Неподдерживаемая версия файла (" + version + ")");
+        }
+      }
+      catch
+      {
+        if(fs != null)
+          fs.Dispose();
+
+        throw;
       }
     }
 

@@ -39,22 +39,22 @@ namespace QScalp.History.Writer
 
     // **********************************************************************
 
-    public void Write(DateTime dateTime, OwnTradeReply reply)
+    public void Write(DateTime dateTime, OwnTrade trade)
     {
       dw.WriteRecHeader(sid, dateTime);
 
-      dw.WriteGrowing(DateTimeHelper.ToMs(reply.DateTime), ref lastMilliseconds);
+      dw.WriteGrowing(DateTimeHelper.ToMs(trade.DateTime), ref lastMilliseconds);
 
-      dw.WriteLeb128(reply.TradeId - lastTradeId);
-      lastTradeId = reply.TradeId;
+      dw.WriteLeb128(trade.TradeId - lastTradeId);
+      lastTradeId = trade.TradeId;
 
-      dw.WriteLeb128(reply.OrderId - lastOrderId);
-      lastOrderId = reply.OrderId;
+      dw.WriteLeb128(trade.OrderId - lastOrderId);
+      lastOrderId = trade.OrderId;
 
-      dw.WriteLeb128(reply.Price - lastPrice);
-      lastPrice = reply.Price;
+      dw.WriteLeb128(trade.Price - lastPrice);
+      lastPrice = trade.Price;
 
-      dw.WriteLeb128(reply.Quantity);
+      dw.WriteLeb128(trade.Quantity);
     }
 
     // **********************************************************************

@@ -36,7 +36,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -48,69 +48,83 @@
     <ApplicationIcon>Properties\stocksharp.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DevExpress.Data.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Data.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Mvvm.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Mvvm.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Controls.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Controls.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Core.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Core.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Grid.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Grid.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Grid.v18.1.Core">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Grid.v18.1.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Themes.Office2016Black.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Themes.Office2016Black.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Themes.Office2016White.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Themes.Office2016White.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Themes.VS2017Blue.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Themes.VS2017Blue.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Themes.VS2017Dark.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Themes.VS2017Dark.v18.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Xpf.Themes.VS2017Light.v18.1">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\DevExpress.Xpf.Themes.VS2017Light.v18.1.dll</HintPath>
+    </Reference>
     <Reference Include="MoreLinq">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\MoreLinq.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\MoreLinq.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.Collections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Collections.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Collections">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Common.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Common">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.ComponentModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.ComponentModel.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.ComponentModel">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.ComponentModel.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.Serialization, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Serialization.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Serialization">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Serialization.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.Web, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Web.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Web">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Web.dll</HintPath>
     </Reference>
-    <Reference Include="Ecng.Xaml, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b10e79ed0227b515, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\Ecng.Xaml.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Xaml">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Xaml.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Algo, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Algo.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ecng.Xaml.DevExp">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\Ecng.Xaml.DevExp.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.BusinessEntities, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.BusinessEntities.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Algo">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Algo.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Community, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Community.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.BusinessEntities">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.BusinessEntities.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Configuration, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Configuration.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Localization">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Localization.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Localization, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Localization.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Logging">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Logging, Version=4.3.17.0, Culture=neutral, PublicKeyToken=a245fe39d1a4aa84, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Logging.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Messages">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Messages, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Messages.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Plaza">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Plaza.dll</HintPath>
     </Reference>
-    <Reference Include="StockSharp.Xaml, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Xaml.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="StockSharp.Plaza, Version=4.3.17.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\StockSharp.4.3.17\lib\net45\StockSharp.Plaza.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="StockSharp.Xaml">
+      <HintPath>packages\StockSharp.4.4.14\lib\net45\StockSharp.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -139,16 +153,6 @@
     <Compile Include="QScalp\RawQuotes.cs" />
     <Compile Include="QScalp\Reader\IQshStream.cs" />
     <Compile Include="QScalp\Reader\QshReader.cs" />
-    <Compile Include="QScalp\Reader\V3\AuxInfoStream.cs" />
-    <Compile Include="QScalp\Reader\V3\DataReader.cs" />
-    <Compile Include="QScalp\Reader\V3\DealsStream.cs" />
-    <Compile Include="QScalp\Reader\V3\Flags.cs" />
-    <Compile Include="QScalp\Reader\V3\MessagesStream.cs" />
-    <Compile Include="QScalp\Reader\V3\OwnOrdersStream.cs" />
-    <Compile Include="QScalp\Reader\V3\OwnTradesStream.cs" />
-    <Compile Include="QScalp\Reader\V3\QshReaderImpl.cs" />
-    <Compile Include="QScalp\Reader\V3\QshStream.cs" />
-    <Compile Include="QScalp\Reader\V3\QuotesStream.cs" />
     <Compile Include="QScalp\Reader\V4\AuxInfoStream.cs" />
     <Compile Include="QScalp\Reader\V4\DataReader.cs" />
     <Compile Include="QScalp\Reader\V4\DealsStream.cs" />

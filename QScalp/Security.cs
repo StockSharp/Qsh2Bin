@@ -14,7 +14,7 @@ using System.Globalization;
 
 namespace QScalp
 {
-  public class Security
+  sealed class Security
   {
     // **********************************************************************
 
@@ -60,9 +60,6 @@ namespace QScalp
       }
     }
 
-    public int Precision { get { return priceFormat.NumberDecimalDigits; } }
-    public int Key { get; private set; }
-
     // **********************************************************************
 
     public Security(string entry)
@@ -105,12 +102,7 @@ namespace QScalp
         }
 
         if(error)
-        {
           Ticker = "{" + Ticker + "}";
-          Key = 0;
-        }
-        else
-          InitKey();
       }
       else
         Reset("{err}");
@@ -124,41 +116,6 @@ namespace QScalp
       AuxCode = string.Empty;
       Id = 0;
       Step = 1;
-      Key = 0;
-    }
-
-    // **********************************************************************
-
-    void InitKey()
-    {
-      if(Id != 0)
-        Key = GetKey(GetKey(CName), Id);
-      else if(AuxCode.Length == 0)
-        Key = GetKey(GetKey(CName), Ticker);
-      else
-        Key = GetKey(GetKey(CName), Ticker, AuxCode);
-    }
-
-    // **********************************************************************
-
-    public static int GetKey(string cname)
-    {
-      return cname.GetHashCode();
-    }
-
-    public static int GetKey(int ckey, int id)
-    {
-      return ckey ^ id;
-    }
-
-    public static int GetKey(int ckey, string ticker)
-    {
-      return ckey ^ ticker.GetHashCode();
-    }
-
-    public static int GetKey(int ckey, string ticker, string auxcode)
-    {
-      return ckey ^ ticker.GetHashCode() ^ ~auxcode.GetHashCode();
     }
 
     // **********************************************************************
@@ -170,8 +127,8 @@ namespace QScalp
 
       return CName + " / " + Ticker
         + (AuxCode.Length == 0 ? string.Empty : " " + AuxCode)
-        + (Id == 0 ? string.Empty : " " + Id)
-        + ", " + GetString(1, "N") + " пт";
+        + (Id == 0 ? string.Empty : " " + Id) + ", "
+        + GetPrice(1).ToString("N", priceFormat) + " пт";
     }
 
     // **********************************************************************
@@ -184,13 +141,6 @@ namespace QScalp
     // **********************************************************************
 
     public double GetPrice(double ticks) { return ticks * Step; }
-
-    // **********************************************************************
-
-    public string GetString(double ticks, string fmt)
-    {
-      return GetPrice(ticks).ToString(fmt, priceFormat);
-    }
 
     // **********************************************************************
   }

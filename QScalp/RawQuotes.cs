@@ -37,9 +37,9 @@ namespace QScalp.Shared
 
     // **********************************************************************
 
-    public void GetQuotes(out Quote[] quotes, out Spread spread)
+    public Quote[] GetQuotes()
     {
-      quotes = new Quote[this.Count];
+      Quote[] quotes = new Quote[this.Count];
 
       SortedDictionary<int, int>.Enumerator enumerator = this.GetEnumerator();
       int index = -1;
@@ -56,12 +56,7 @@ namespace QScalp.Shared
         else if(kvp.Value < 0)
         {
           if(index >= 0)
-          {
             quotes[index].Type = QuoteType.BestAsk;
-            spread = new Spread(quotes[index].Price, kvp.Key);
-          }
-          else
-            spread = new Spread(0, kvp.Key);
 
           index++;
           quotes[index] = new Quote(kvp.Key, -kvp.Value, QuoteType.BestBid);
@@ -77,17 +72,14 @@ namespace QScalp.Shared
             }
           }
 
-          return;
+          return quotes;
         }
       }
 
       if(index >= 0)
-      {
         quotes[index].Type = QuoteType.BestAsk;
-        spread = new Spread(quotes[index].Price, 0);
-      }
-      else
-        spread = new Spread();
+
+      return quotes;
     }
 
     // **********************************************************************

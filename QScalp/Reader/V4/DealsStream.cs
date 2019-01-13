@@ -69,11 +69,10 @@ namespace QScalp.History.Reader.V4
       if(push && Handler != null)
         Handler(new Deal()
         {
-          SecKey = Security.Key,
-          Type = (DealType)(flags & DealFlags.Type),
+          DateTime = DateTimeHelper.FromMs(lastMilliseconds),
           Id = lastId,
           OrderId = lastOrderId,
-          DateTime = DateTimeHelper.FromMs(lastMilliseconds),
+          Type = (DealType)(flags & DealFlags.Type),
           Price = lastPrice,
           Volume = lastVolume,
           OI = lastOI
