@@ -60,6 +60,8 @@
 		{
 			InitializeComponent();
 
+			Title = TypeHelper.ApplicationNameWithVersion;
+
 			Directory.CreateDirectory(_settingsDir);
 
 			_logManager.Application.LogLevel = LogLevels.Verbose;
