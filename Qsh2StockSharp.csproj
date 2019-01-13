@@ -45,7 +45,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Properties\stocksharp.ico</ApplicationIcon>
+    <ApplicationIcon>packages\StockSharp.4.4.14\lib\net45\stocksharp.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DevExpress.Data.v18.1">
@@ -213,7 +213,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Properties\stocksharp.ico" />
+    <Resource Include="packages\StockSharp.4.4.14\lib\net45\stocksharp.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
