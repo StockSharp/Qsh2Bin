@@ -8,6 +8,8 @@
 	using System.Windows;
 	using System.Windows.Controls;
 
+	using DevExpress.Xpf.Core;
+
 	using Ecng.Common;
 	using Ecng.Collections;
 	using Ecng.Serialization;
@@ -22,6 +24,7 @@
 	using StockSharp.Algo;
 	using StockSharp.Algo.Storages;
 	using StockSharp.BusinessEntities;
+	using StockSharp.Localization;
 	using StockSharp.Logging;
 	using StockSharp.Messages;
 	using StockSharp.Plaza;
@@ -41,7 +44,6 @@
 			public int OrderBookMaxDepth { get; set; } = 5;
 		}
 
-		private readonly SecurityIdGenerator _idGenerator = new SecurityIdGenerator();
 		private readonly LogManager _logManager = new LogManager();
 
 		private bool _isStarted;
@@ -61,6 +63,8 @@
 			InitializeComponent();
 
 			Title = TypeHelper.ApplicationNameWithVersion;
+
+			ApplicationThemeHelper.ApplicationThemeName = ThemeExtensions.DefaultTheme;
 
 			Directory.CreateDirectory(_settingsDir);
 
@@ -169,7 +173,7 @@
 
 				this.GuiAsync(() =>
 				{
-					Convert.Content = "Остановить";
+					Convert.Content = LocalizedStrings.Str2890;
 					Convert.IsEnabled = true;
 				});
 
@@ -179,7 +183,7 @@
 			})
 			.ContinueWith(t =>
 			{
-				Convert.Content = "Запустить";
+				Convert.Content = LocalizedStrings.Str2932;
 				Convert.IsEnabled = true;
 
 				LockControls(true);
@@ -233,7 +237,7 @@
 			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread, orderLog2OrderBookBuilders, orderBookMaxDepth));
 		}
 
-		private void TryFlushData<TMessage>(IStorageRegistry registry, BusinessEntities.Security security, StorageFormats format, object arg, List<TMessage> messages, QshReader reader)
+		private void TryFlushData<TMessage>(IStorageRegistry registry, SecurityId securityId, StorageFormats format, object arg, List<TMessage> messages, QshReader reader)
 			where TMessage : Messages.Message
 		{
 			const int maxBufCount = 1000;
@@ -243,7 +247,7 @@
 
 			_logManager.Application.AddDebugLog("Файл прочитан на {1}%.", messages.Count, (reader.FilePosition * 100) / reader.FileSize);
 
-			registry.GetStorage(security, typeof(TMessage), arg, null, format).Save(messages);
+			registry.GetStorage(securityId, typeof(TMessage), arg, null, format).Save(messages);
 			messages.Clear();
 		}
 
@@ -261,19 +265,17 @@
 
 			var securitiesStrings = securityLike.Split(",");
 
-			var data = new Dictionary<BusinessEntities.Security, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
+			var data = new Dictionary<SecurityId, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
 
 			using (var qr = QshReader.Open(fileName))
 			{
 				var reader = qr;
-				var currentDate = qr.CurrentDateTime;
 
 				for (var i = 0; i < qr.StreamCount; i++)
 				{
 					var stream = (ISecurityStream)qr[i];
-					var security = GetSecurity(stream.Security, board);
-					var priceStep = security.PriceStep ?? 1;
-					var securityId = security.ToSecurityId();
+					var securityId = GetSecurityId(stream.Security, board.Code);
+					var priceStep = (decimal)stream.Security.Step;
 					var lastTransactionId = 0L;
 					var builder = orderLog2OrderBookBuilders?.SafeAdd(securityId, key => new PlazaOrderLogMarketDepthBuilder(key));
 
@@ -309,7 +311,7 @@
 							continue;
 					}
 
-					var secData = data.SafeAdd(security, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
+					var secData = data.SafeAdd(securityId, key => Tuple.Create(new List<QuoteChangeMessage>(), new List<ExecutionMessage>(), new List<Level1ChangeMessage>(), new List<ExecutionMessage>()));
 
 					switch (stream.Type)
 					{
@@ -317,45 +319,44 @@
 						{
 							((IQuotesStream)stream).Handler += quotes =>
 							{
-								var quotes2 = quotes.Select(q =>
-								{
-									Sides side;
+								var bids = new List<QuoteChange>();
+								var asks = new List<QuoteChange>();
 
+								foreach (var q in quotes)
+								{
 									switch (q.Type)
 									{
-										case QuoteType.Unknown:
-										case QuoteType.Free:
-										case QuoteType.Spread:
-											throw new ArgumentException(q.Type.ToString());
+										//case QuoteType.Unknown:
+										//case QuoteType.Free:
+										//case QuoteType.Spread:
+										//	throw new ArgumentException(q.Type.ToString());
 										case QuoteType.Ask:
 										case QuoteType.BestAsk:
-											side = Sides.Sell;
+											asks.Add(new QuoteChange(priceStep * q.Price, q.Volume));
 											break;
 										case QuoteType.Bid:
 										case QuoteType.BestBid:
-											side = Sides.Buy;
+											bids.Add(new QuoteChange(priceStep * q.Price, q.Volume));
 											break;
 										default:
-											throw new ArgumentOutOfRangeException();
+											throw new ArgumentException(q.Type.ToString());
 									}
-
-									return new QuoteChange(side, priceStep * q.Price, q.Volume);
-								}).ToArray();
+								}
 
 								var md = new QuoteChangeMessage
 								{
 									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 									SecurityId = securityId,
-									ServerTime = currentDate.ApplyTimeZone(TimeHelper.Moscow),
-									Bids = quotes2.Where(q => q.Side == Sides.Buy),
-									Asks = quotes2.Where(q => q.Side == Sides.Sell),
+									ServerTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									Bids = bids.ToArray(),
+									Asks = asks.ToArray(),
 								};
 
 								//if (md.Verify())
 								//{
 								secData.Item1.Add(md);
 
-								TryFlushData(registry, security, format, null, secData.Item1, reader);
+								TryFlushData(registry, securityId, format, null, secData.Item1, reader);
 
 								//}
 								//else
@@ -384,7 +385,7 @@
 											: (deal.Type == DealType.Sell ? Sides.Sell : (Sides?)null)
 								});
 
-								TryFlushData(registry, security, format, ExecutionTypes.Tick, secData.Item2, reader);
+								TryFlushData(registry, securityId, format, ExecutionTypes.Tick, secData.Item2, reader);
 							};
 							break;
 						}
@@ -488,7 +489,7 @@
 								{
 									secData.Item4.Add(msg);
 
-									TryFlushData(registry, security, format, ExecutionTypes.OrderLog, secData.Item4, reader);
+									TryFlushData(registry, securityId, format, ExecutionTypes.OrderLog, secData.Item4, reader);
 								}
 								else
 								{
@@ -517,7 +518,7 @@
 												LocalTime = builder.Depth.LocalTime,
 											});
 
-											TryFlushData(registry, security, format, null, secData.Item1, reader);
+											TryFlushData(registry, securityId, format, null, secData.Item1, reader);
 										}
 									}
 								}
@@ -528,16 +529,11 @@
 						{
 							((IAuxInfoStream)stream).Handler += info =>
 							{
-								var time = info.DateTime;
-
-								if (time.IsDefault())
-									time = qr.CurrentDateTime;
-
 								var l1Msg = new Level1ChangeMessage
 					            {
 						            LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 						            SecurityId = securityId,
-						            ServerTime = time.ApplyTimeZone(TimeHelper.Moscow),
+						            ServerTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
 					            }
 					            .TryAdd(Level1Fields.LastTradePrice, priceStep * info.Price)
 					            .TryAdd(Level1Fields.BidsVolume, (decimal)info.BidTotal)
@@ -551,7 +547,7 @@
 
 								secData.Item3.Add(l1Msg);
 
-								TryFlushData(registry, security, format, null, secData.Item3, reader);
+								TryFlushData(registry, securityId, format, null, secData.Item3, reader);
 							};
 							break;
 						}
@@ -581,22 +577,22 @@
 			{
 				if (pair.Value.Item1.Any())
 				{
-					registry.GetQuoteMessageStorage(pair.Key, format: format).Save(pair.Value.Item1);
+					registry.GetQuoteMessageStorage(pair.Key, registry.DefaultDrive, format).Save(pair.Value.Item1);
 				}
 
 				if (pair.Value.Item2.Any())
 				{
-					registry.GetTickMessageStorage(pair.Key, format: format).Save(pair.Value.Item2);
+					registry.GetTickMessageStorage(pair.Key, registry.DefaultDrive, format).Save(pair.Value.Item2);
 				}
 
 				if (pair.Value.Item3.Any())
 				{
-					registry.GetLevel1MessageStorage(pair.Key, format: format).Save(pair.Value.Item3);
+					registry.GetLevel1MessageStorage(pair.Key, registry.DefaultDrive, format).Save(pair.Value.Item3);
 				}
 
 				if (pair.Value.Item4.Any())
 				{
-					registry.GetOrderLogMessageStorage(pair.Key, format: format).Save(pair.Value.Item4);
+					registry.GetOrderLogMessageStorage(pair.Key, registry.DefaultDrive, format).Save(pair.Value.Item4);
 				}
 			}
 
@@ -610,15 +606,12 @@
 			_logManager.Application.AddInfoLog("Завершена конвертация файла {0}.", fileName);
 		}
 
-		private BusinessEntities.Security GetSecurity(QScalp.Security security, ExchangeBoard board)
+		private SecurityId GetSecurityId(QScalp.Security security, string boardCode)
 		{
-			return new BusinessEntities.Security
+			return new SecurityId
 			{
-				Id = _idGenerator.GenerateId(security.Ticker, board),
-				Code = security.Ticker,
-				Board = board,
-				PriceStep = (decimal)security.Step,
-				//Decimals = security.Precision
+				SecurityCode = security.Ticker,
+				BoardCode = boardCode,
 			};
 		}
 
