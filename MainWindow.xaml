@@ -30,10 +30,10 @@
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 			
-			<Label Grid.Column="0" Grid.Row="0" Margin="2.5">QSH:</Label>
+			<TextBlock Grid.Column="0" Grid.Row="0" Margin="2.5" VerticalAlignment="Center">QSH:</TextBlock>
 			<devExp:FolderBrowserPicker x:Name="QshFolder" Grid.Column="1" Grid.Row="0" FolderChanged="OnFolderChanged" Margin="2.5"/>
 
-			<Label Grid.Column="0" Grid.Row="1" Margin="2.5">S#:</Label>
+			<TextBlock Grid.Column="0" Grid.Row="1" Margin="2.5" VerticalAlignment="Center">S#:</TextBlock>
 			<devExp:FolderBrowserPicker x:Name="StockSharpFolder" Grid.Column="1" Grid.Row="1" FolderChanged="OnFolderChanged" Margin="2.5"/>
 		</Grid>
 
@@ -50,14 +50,37 @@
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
 						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="*"/>
+						<RowDefinition Height="5"/>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition Height="5"/>
+						<RowDefinition Height="Auto"/>
 					</Grid.RowDefinitions>
-					<Label Grid.Column="0" Grid.Row="0" Margin="2.5">Board code:</Label>
-					<xaml:ExchangeBoardComboBox x:Name="Board" Grid.Column="1" Grid.Row="0" SelectionChanged="Board_OnSelectionChanged" MinWidth="100" Margin="2.5"/>
+					<TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center">Board code:</TextBlock>
+					<xaml:ExchangeBoardComboBox x:Name="Board" Grid.Column="1" Grid.Row="0" SelectionChanged="Board_OnSelectionChanged" MinWidth="100"/>
 
-					<Label Grid.Column="0" Grid.Row="1" Margin="2.5">Security Code Masks:</Label>
-					<dxe:TextEdit x:Name="SecurityLike" Grid.Column="1" Grid.Row="1" Margin="2.5"
+					<TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center">Security Code Masks:</TextBlock>
+					<dxe:TextEdit x:Name="SecurityLike" Grid.Column="1" Grid.Row="2"
 							 ToolTip="Masks, separated by commas. For examle '*BR*,CHMF-9.14,LKOH'. '*BR*' mask will leads to conversion all found securities, contains BR sumbols in code, like 'BR','SBRF','VTBR' and etc."/>
+
+					<GroupBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Header="{x:Static loc:LocalizedStrings.TimeZone}">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition Width="*"/>
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="5"/>
+								<RowDefinition Height="Auto"/>
+							</Grid.RowDefinitions>
+
+							<TextBlock Text="{x:Static loc:LocalizedStrings.Str203}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" />
+							<devExp:TimeZoneEditor x:Name="TimeStampZone" Grid.Column="1" Grid.Row="0" />
+
+							<TextBlock Text="{x:Static loc:LocalizedStrings.ServerTime}" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" />
+							<devExp:TimeZoneEditor x:Name="MarketDataZone" Grid.Column="1" Grid.Row="2" />
+						</Grid>
+					</GroupBox>
 				</Grid>
 			</GroupBox>
 			<GroupBox x:Name="StorageSettingsBox" Grid.Column="1" Header="Convertion settings" Padding="5" Margin="2.5">
@@ -72,7 +95,7 @@
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 
-					<Label Grid.Column="0" Grid.Row="0" Margin="2.5">Output format:</Label>
+					<TextBlock Grid.Column="0" Grid.Row="0" Margin="2.5" VerticalAlignment="Center">Output format:</TextBlock>
 					<ComboBox x:Name="Format" Grid.Column="1" Grid.Row="0" Width="60" HorizontalAlignment="Left" Margin="2.5"/>
 
 					<dxe:CheckEdit x:Name="MultiThread" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="2.5">Multi thread convertion</dxe:CheckEdit>

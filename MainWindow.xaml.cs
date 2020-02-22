@@ -42,6 +42,8 @@
 			public bool MultiThread { get; set; }
 			public bool OrderLog2OrderBook { get; set; }
 			public int OrderBookMaxDepth { get; set; } = 5;
+			public string TimeStampZone { get; set; }
+			public string MarketDataZone { get; set; }
 		}
 
 		private readonly LogManager _logManager = new LogManager();
@@ -67,6 +69,9 @@
 			ApplicationThemeHelper.ApplicationThemeName = ThemeExtensions.DefaultTheme;
 
 			Directory.CreateDirectory(_settingsDir);
+
+			TimeStampZone.TimeZone = TimeZoneInfo.Utc;
+			MarketDataZone.TimeZone = TimeHelper.Moscow;
 
 			_logManager.Application.LogLevel = LogLevels.Verbose;
 
@@ -96,6 +101,12 @@
 						settings.Board.IsEmpty()
 							? ExchangeBoard.Forts
 							: Board.Boards.FirstOrDefault(b => b.Code.CompareIgnoreCase(settings.Board)) ?? ExchangeBoard.Forts;
+
+					if (!settings.TimeStampZone.IsEmpty())
+						TimeStampZone.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(settings.TimeStampZone);
+
+					if (!settings.MarketDataZone.IsEmpty())
+						MarketDataZone.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(settings.MarketDataZone);
 				}
 
 				if (File.Exists(_convertedFilesFile))
@@ -126,6 +137,8 @@
 				Board = Board.SelectedBoard?.Code,
 				MultiThread = MultiThread.IsChecked == true,
 				OrderLog2OrderBook = OrderLog2OrderBook.IsEnabled && OrderLog2OrderBook.IsChecked == true,
+				TimeStampZone = TimeStampZone.TimeZone.Id,
+				MarketDataZone = MarketDataZone.TimeZone.Id,
 			};
 
 			try
@@ -165,6 +178,8 @@
 			var board = Board.SelectedBoard;
 
 			var orderLog2OrderBookBuilders = settings.OrderLog2OrderBook ? new Dictionary<SecurityId, IOrderLogMarketDepthBuilder>() : null;
+			var tz = TimeStampZone.TimeZone;
+			var mz = MarketDataZone.TimeZone;
 
 			Task.Factory.StartNew(() =>
 			{
@@ -179,7 +194,7 @@
 
 				_startConvertTime = DateTimeOffset.Now;
 
-				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread, orderLog2OrderBookBuilders, settings.OrderBookMaxDepth);
+				ConvertDirectory(settings.QshFolder, registry, settings.Format, board, settings.SecurityLike, settings.MultiThread, orderLog2OrderBookBuilders, settings.OrderBookMaxDepth, tz, mz);
 			})
 			.ContinueWith(t =>
 			{
@@ -216,7 +231,7 @@
 			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth)
+		private void ConvertDirectory(string path, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, bool multithread, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth, TimeZoneInfo tz, TimeZoneInfo mz)
 		{
 			if (!_isStarted)
 				return;
@@ -224,17 +239,17 @@
 			var files = Directory.GetFiles(path, "*.qsh");
 
 			if (!multithread)
-				files.ForEach(f => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
+				files.ForEach(f => ConvertFile(f, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth, tz, mz));
 			else
 			{
-				Parallel.ForEach(files, file => ConvertFile(file, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth));
+				Parallel.ForEach(files, file => ConvertFile(file, registry, format, board, securityLike, orderLog2OrderBookBuilders, orderBookMaxDepth, tz, mz));
 			}
 
 			//пишем имена сконвертированных в деректории файлов qsh, в файл 
 			File.AppendAllLines(_convertedFilesFile, _convertedPerTaskPoolFiles);
 			_convertedPerTaskPoolFiles.Clear();
 
-			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread, orderLog2OrderBookBuilders, orderBookMaxDepth));
+			Directory.GetDirectories(path).ForEach(d => ConvertDirectory(d, registry, format, board, securityLike, multithread, orderLog2OrderBookBuilders, orderBookMaxDepth, tz, mz));
 		}
 
 		private void TryFlushData<TMessage>(IStorageRegistry registry, SecurityId securityId, StorageFormats format, object arg, List<TMessage> messages, QshReader reader)
@@ -251,7 +266,7 @@
 			messages.Clear();
 		}
 
-		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth)
+		private void ConvertFile(string fileName, IStorageRegistry registry, StorageFormats format, ExchangeBoard board, string securityLike, Dictionary<SecurityId, IOrderLogMarketDepthBuilder> orderLog2OrderBookBuilders, int orderBookMaxDepth, TimeZoneInfo tz, TimeZoneInfo mz)
 		{
 			if (!_isStarted)
 				return;
@@ -266,6 +281,9 @@
 			var securitiesStrings = securityLike.Split(",");
 
 			var data = new Dictionary<SecurityId, Tuple<List<QuoteChangeMessage>, List<ExecutionMessage>, List<Level1ChangeMessage>, List<ExecutionMessage>>>();
+
+			DateTimeOffset ToLocalDto(DateTime dt) => dt.ApplyTimeZone(tz);
+			DateTimeOffset ToServerDto(DateTime dt) => dt.ApplyTimeZone(mz);
 
 			using (var qr = QshReader.Open(fileName))
 			{
@@ -339,15 +357,18 @@
 											bids.Add(new QuoteChange(priceStep * q.Price, q.Volume));
 											break;
 										default:
-											throw new ArgumentException(q.Type.ToString());
+										{
+											continue;
+											//throw new ArgumentException(q.Type.ToString());
+										}
 									}
 								}
 
 								var md = new QuoteChangeMessage
 								{
-									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									LocalTime = ToLocalDto(reader.CurrentDateTime),
 									SecurityId = securityId,
-									ServerTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									ServerTime = ToLocalDto(reader.CurrentDateTime),
 									Bids = bids.ToArray(),
 									Asks = asks.ToArray(),
 								};
@@ -370,15 +391,15 @@
 							{
 								secData.Item2.Add(new ExecutionMessage
 								{
-									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									LocalTime = ToLocalDto(reader.CurrentDateTime),
 									HasTradeInfo = true,
 									ExecutionType = ExecutionTypes.Tick,
 									SecurityId = securityId,
 									OpenInterest = deal.OI == 0 ? (long?)null : deal.OI,
-									ServerTime = deal.DateTime.ApplyTimeZone(TimeHelper.Moscow),
+									ServerTime = ToServerDto(deal.DateTime),
 									TradeVolume = deal.Volume,
 									TradeId = deal.Id == 0 ? (long?)null : deal.Id,
-									TradePrice = deal.Price,
+									TradePrice = deal.Price * priceStep,
 									OriginSide = 
 										deal.Type == DealType.Buy
 											? Sides.Buy
@@ -402,13 +423,13 @@
 
 								var msg = new ExecutionMessage
 								{
-									LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+									LocalTime = ToLocalDto(reader.CurrentDateTime),
 									ExecutionType = ExecutionTypes.OrderLog,
 									SecurityId = securityId,
 									OpenInterest = ol.OI == 0 ? (long?)null : ol.OI,
 									OrderId = ol.OrderId,
 									OrderPrice = priceStep * ol.Price,
-									ServerTime = ol.DateTime.ApplyTimeZone(TimeHelper.Moscow),
+									ServerTime = ToServerDto(ol.DateTime),
 									OrderVolume = ol.Amount,
 									Balance = ol.AmountRest,
 									TradeId = ol.DealId == 0 ? (long?)null : ol.DealId,
@@ -531,15 +552,17 @@
 							{
 								var l1Msg = new Level1ChangeMessage
 					            {
-						            LocalTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+						            LocalTime = ToLocalDto(reader.CurrentDateTime),
 						            SecurityId = securityId,
-						            ServerTime = reader.CurrentDateTime.ApplyTimeZone(TimeHelper.Moscow),
+						            ServerTime = ToLocalDto(reader.CurrentDateTime),
 					            }
 					            .TryAdd(Level1Fields.LastTradePrice, priceStep * info.Price)
 					            .TryAdd(Level1Fields.BidsVolume, (decimal)info.BidTotal)
 					            .TryAdd(Level1Fields.AsksVolume, (decimal)info.AskTotal)
 					            .TryAdd(Level1Fields.HighPrice, priceStep * info.HiLimit)
 					            .TryAdd(Level1Fields.LowPrice, priceStep * info.LoLimit)
+					            .TryAdd(Level1Fields.StepPrice, (decimal)info.Rate)
+					            .TryAdd(Level1Fields.OperatingMargin, (decimal)info.Deposit)
 					            .TryAdd(Level1Fields.OpenInterest, (decimal)info.OI);
 
 								if (l1Msg.Changes.Count == 0)
@@ -606,7 +629,7 @@
 			_logManager.Application.AddInfoLog("Завершена конвертация файла {0}.", fileName);
 		}
 
-		private SecurityId GetSecurityId(QScalp.Security security, string boardCode)
+		private static SecurityId GetSecurityId(QScalp.Security security, string boardCode)
 		{
 			return new SecurityId
 			{
