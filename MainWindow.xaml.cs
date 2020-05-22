@@ -516,7 +516,7 @@
 								{
 									//if (builder.Depth.Bids.Any() || builder.Depth.Asks.Any() || msg.ServerTime.TimeOfDay >= new TimeSpan(0, 18, 45, 00, 1))
 									{
-										bool updated;
+										QuoteChangeMessage updated;
 
 										try
 										{
@@ -524,20 +524,12 @@
 										}
 										catch
 										{
-											updated = false;
+											updated = null;
 										}
 
-										if (updated)
+										if (updated != null)
 										{
-											secData.Item1.Add(new QuoteChangeMessage
-											{
-												SecurityId = securityId,
-												ServerTime = builder.Depth.ServerTime,
-												Bids = builder.Depth.Bids.Take(orderBookMaxDepth).ToArray(),
-												Asks = builder.Depth.Asks.Take(orderBookMaxDepth).ToArray(),
-												IsSorted = builder.Depth.IsSorted,
-												LocalTime = builder.Depth.LocalTime,
-											});
+											secData.Item1.Add(updated);
 
 											TryFlushData(registry, securityId, format, null, secData.Item1, reader);
 										}

@@ -1,213 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5B24FB13-5B07-4E9B-8C2E-02297BC1196E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StockSharp.Qsh2StockSharp</RootNamespace>
-    <AssemblyName>Qsh2StockSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>stocksharp.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>References\stocksharp.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DevExpress.Data.v19.2">
-      <HintPath>References\DevExpress.Data.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Mvvm.v19.2">
-      <HintPath>References\DevExpress.Mvvm.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Controls.v19.2">
-      <HintPath>References\DevExpress.Xpf.Controls.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Core.v19.2">
-      <HintPath>References\DevExpress.Xpf.Core.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Grid.v19.2">
-      <HintPath>References\DevExpress.Xpf.Grid.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Grid.v19.2.Core">
-      <HintPath>References\DevExpress.Xpf.Grid.v19.2.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Themes.Office2016White.v19.2">
-      <HintPath>References\DevExpress.Xpf.Themes.Office2016White.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="DevExpress.Xpf.Themes.VS2017Dark.v19.2">
-      <HintPath>References\DevExpress.Xpf.Themes.VS2017Dark.v19.2.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Collections">
-      <HintPath>References\Ecng.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Common">
-      <HintPath>References\Ecng.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.ComponentModel">
-      <HintPath>References\Ecng.ComponentModel.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Serialization">
-      <HintPath>References\Ecng.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Web">
-      <HintPath>References\Ecng.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Xaml">
-      <HintPath>References\Ecng.Xaml.dll</HintPath>
-    </Reference>
-    <Reference Include="Ecng.Xaml.DevExp">
-      <HintPath>References\Ecng.Xaml.DevExp.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Algo">
-      <HintPath>References\StockSharp.Algo.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.BusinessEntities">
-      <HintPath>References\StockSharp.BusinessEntities.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Localization">
-      <HintPath>References\StockSharp.Localization.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Logging">
-      <HintPath>References\StockSharp.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Messages">
-      <HintPath>References\StockSharp.Messages.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Plaza">
-      <HintPath>References\StockSharp.Plaza.dll</HintPath>
-    </Reference>
-    <Reference Include="StockSharp.Xaml">
-      <HintPath>References\StockSharp.Xaml.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <PackageReference Include="StockSharp.Xaml" Version="5.*" />
+    <PackageReference Include="StockSharp.Plaza" Version="5.*" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="QScalp\DataTypes.cs" />
-    <Compile Include="QScalp\Internals\DateTimeHelper.cs" />
-    <Compile Include="QScalp\Internals\Flags.cs" />
-    <Compile Include="QScalp\Internals\Leb128.cs" />
-    <Compile Include="QScalp\Internals\QshFile.cs" />
-    <Compile Include="QScalp\Internals\StreamType.cs" />
-    <Compile Include="QScalp\Internals\ULeb128.cs" />
-    <Compile Include="QScalp\RawQuotes.cs" />
-    <Compile Include="QScalp\Reader\IQshStream.cs" />
-    <Compile Include="QScalp\Reader\QshReader.cs" />
-    <Compile Include="QScalp\Reader\V4\AuxInfoStream.cs" />
-    <Compile Include="QScalp\Reader\V4\DataReader.cs" />
-    <Compile Include="QScalp\Reader\V4\DealsStream.cs" />
-    <Compile Include="QScalp\Reader\V4\MessagesStream.cs" />
-    <Compile Include="QScalp\Reader\V4\OrdLogStream.cs" />
-    <Compile Include="QScalp\Reader\V4\OwnOrdersStream.cs" />
-    <Compile Include="QScalp\Reader\V4\OwnTradesStream.cs" />
-    <Compile Include="QScalp\Reader\V4\QshReaderImpl.cs" />
-    <Compile Include="QScalp\Reader\V4\QshStream.cs" />
-    <Compile Include="QScalp\Reader\V4\QuotesStream.cs" />
-    <Compile Include="QScalp\Security.cs" />
-    <Compile Include="QScalp\Writer\AuxInfoStream.cs" />
-    <Compile Include="QScalp\Writer\DataWriter.cs" />
-    <Compile Include="QScalp\Writer\DealsStream.cs" />
-    <Compile Include="QScalp\Writer\MessagesStream.cs" />
-    <Compile Include="QScalp\Writer\OrdLogStream.cs" />
-    <Compile Include="QScalp\Writer\OwnOrdersStream.cs" />
-    <Compile Include="QScalp\Writer\OwnTradesStream.cs" />
-    <Compile Include="QScalp\Writer\QshWriter.cs" />
-    <Compile Include="QScalp\Writer\QuotesStream.cs" />
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Resource Include="stocksharp.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="app.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <AppDesigner Include="Properties\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="References\stocksharp.ico" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
